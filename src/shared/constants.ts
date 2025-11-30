@@ -12,6 +12,6 @@ export const DB_LOGGING: string = process.env.DB_LOGGING || '';
 export const MAIL_FROM: string = process.env.MAIL_FROM || '';
 export const MAIL_HOST: string = process.env.MAIL_HOST || '';
 export const MAIL_PORT: string = process.env.MAIL_PORT || '';
-export const MAIL_USERNAME: string = process.env.MAIL_USERNAME || '';
+export const MAIL_USER: string = process.env.MAIL_USER || '';
 export const MAIL_PASSWORD: string = process.env.MAIL_PASSWORD || '';
 export const MAIL_SECURE: string = process.env.MAIL_SECURE || '';
