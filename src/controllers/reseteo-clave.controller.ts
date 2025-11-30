@@ -10,15 +10,17 @@ export const solicitarRecuperacionClave = async (req: Request, res: Response) =>
         const usuario = await usuarioService.obtenerUsuarioPorCorreo(correo);
         console.log('usuario', usuario);
         if (usuario) {
-            const reseteoClave = await reseteoClaveService.insertarReseteoClave({usuario});
+            const reseteoClave = await reseteoClaveService.insertarReseteoClave({ usuario });
             const enlaceReseteo = `http://localhost:3000/resetear-clave/${reseteoClave.idReseteoClave}`;
             const dataMail = {
                 nombre: usuario.nombre,
                 enlace: enlaceReseteo
             };
             await mailService.enviarCorreo(correo, 'Recuperación de Clave', 'recuperacion-clave', dataMail);
+            res.json(BaseResponse.success('Se ha enviado un correo con el enlace para recuperar su clave'));
+        } else {
+            res.json(BaseResponse.error('No se ha encontrado un usuario con ese correo'));
         }
-        res.json(BaseResponse.success('Se ha enviado un correo con el enlace para recuperar su clave'));
     } catch (error) {
         console.error(error);
         res.status(500).json(BaseResponse.error(error.message));
