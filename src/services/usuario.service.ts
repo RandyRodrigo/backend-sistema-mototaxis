@@ -30,3 +30,11 @@ export const obtenerUsuario = async (idUsuario: string): Promise<Usuario | null>
         }
     });
 };
+
+export const listarUsuarios = async () => {
+    return await repository.find({
+        where: {
+            estadoAuditoria: EstadoAuditoriaEnum.ACTIVO,
+        }
+    });
+};
