@@ -22,11 +22,20 @@ export const obtenerUsuarioConClavePorCorreo = async (correo: string): Promise<U
     });
 };
 
-export const obtenerUsuario = async (idUsuario: string): Promise<Usuario | null> => {
+export const obtenerUsuario = async (idUsuario: string): Promise<Usuario> => {
+    return await repository.findOne({
+        where: {
+            idUsuario,
+            estadoAuditoria: EstadoAuditoriaEnum.ACTIVO
+        }
+    });
+};
+
+export const obtenerUsuarioPorCorreo = async (correo: string): Promise<Usuario | null> => {
     return await repository.findOne({
         where: {
             estadoAuditoria: EstadoAuditoriaEnum.ACTIVO,
-            idUsuario
+            correo
         }
     });
 };

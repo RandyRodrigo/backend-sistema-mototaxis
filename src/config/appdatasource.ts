@@ -2,6 +2,7 @@ import { DataSource } from "typeorm";
 import { DB_TYPE, DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD, DB_DATABASE, DB_LOGGING } from "../shared/constants";
 import { Rol } from "../entities/rol";
 import { Usuario } from "../entities/usuario";
+import { ReseteoClave } from "../entities/reseteo-clave";
 
 export const AppDataSource = new DataSource({
     type: DB_TYPE as any,
@@ -11,5 +12,6 @@ export const AppDataSource = new DataSource({
     password: DB_PASSWORD,
     database: DB_DATABASE,
     logging: DB_LOGGING === 'true',
-    entities: [Rol, Usuario]
+    entities: [Rol, Usuario, ReseteoClave],
+    synchronize: false
 });

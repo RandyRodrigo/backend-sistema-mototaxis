@@ -10,7 +10,7 @@ export class Usuario {
     @Column({ name: 'correo' })
     correo: string;
 
-    @Column({ name: 'clave' })
+    @Column({ name: 'clave', select: false })
     clave: string;
 
     @ManyToOne(() => Rol, (rol) => rol.usuarios)
