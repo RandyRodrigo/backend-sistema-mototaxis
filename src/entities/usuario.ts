@@ -7,9 +7,6 @@ export class Usuario {
     @PrimaryColumn({ name: 'id_usuario' })
     idUsuario: string;
 
-    @Column({ name: 'nombre_usuario' })
-    nombreUsuario: string;
-
     @Column({ name: 'correo' })
     correo: string;
 
