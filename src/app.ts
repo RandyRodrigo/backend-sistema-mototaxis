@@ -1,10 +1,13 @@
 import express, { Application } from 'express';
 import { AppDataSource } from './config/appdatasource';
 import BaseResponse from "./shared/base.response";
+import usuarioRouter from './routes/usuario.route';
 
 const app: Application = express();
 
 app.use(express.json());
+
+app.use('/api/v1/usuario', usuarioRouter);
 
 app.use((req, res) => {
     res.status(404).json(BaseResponse.error('Recurso no encontrado', 404));

@@ -1,6 +1,7 @@
 import Joi from "joi";
 
 export const insertarUsuarioSchema = Joi.object({
+    nombreUsuario: Joi.string().required(),
     nombre: Joi.string().required(),
     apellidoPaterno: Joi.string().required(),
     apellidoMaterno: Joi.string().required(),

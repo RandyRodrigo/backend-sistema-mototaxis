@@ -12,7 +12,7 @@ export const insertarUsuario = async (req: Request, res: Response) => {
             return;
         }
 
-        const { nombre, apellidoPaterno, apellidoMaterno, correo, telefono, clave } = req.body;
+        const { nombreUsuario, nombre, apellidoPaterno, apellidoMaterno, correo, telefono, clave } = req.body;
 
         const usuarioRegistrado = await usuarioService.obtenerUsuarioConClavePorCorreo(correo);
         if (usuarioRegistrado) {
@@ -23,6 +23,7 @@ export const insertarUsuario = async (req: Request, res: Response) => {
         const claveEncriptada = await encriptarClave(clave);
         const usuario = {
             idUsuario: generarUUID(),
+            nombreUsuario,
             nombre,
             apellidoPaterno,
             apellidoMaterno,
