@@ -31,6 +31,13 @@ export const obtenerUsuario = async (idUsuario: string): Promise<Usuario> => {
     });
 };
 
+export const listarUsuarios = async () => {
+    return await repository.find({
+        where: {
+            estadoAuditoria: EstadoAuditoriaEnum.ACTIVO,
+        }
+    });
+};
 export const obtenerUsuarioPorCorreo = async (correo: string): Promise<Usuario | null> => {
     return await repository.findOne({
         where: {

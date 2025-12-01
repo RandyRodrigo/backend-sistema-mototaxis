@@ -3,6 +3,7 @@ import * as usuarioService from "../services/usuario.service";
 import BaseResponse from "../shared/base.response";
 import { insertarUsuarioSchema, loginUsuarioSchema } from "../validators/usuario.schema";
 import { encriptarClave, generarUUID, compararClave } from "../shared/util";
+import { MensajeResponseEnum } from "../enums/mensaje.enums";
 
 export const insertarUsuario = async (req: Request, res: Response) => {
     try {
@@ -53,7 +54,7 @@ export const loginUsuario = async (req: Request, res: Response) => {
         if (!usuarioConClave) {
             res.status(400).json(BaseResponse.error("Usuario y/o clave incorrectos", 400));
             return;
-        } 
+        }
         const claveValida = await compararClave(clave, usuarioConClave.clave);
         if (!claveValida) {
             res.status(400).json(BaseResponse.error("Usuario y/o clave incorrectos", 400));
@@ -64,6 +65,20 @@ export const loginUsuario = async (req: Request, res: Response) => {
         return;
     } catch (error) {
         console.error(error);
+        res.status(500).json(BaseResponse.error(error.message));
+    }
+}
+
+export const listarUsuarios = async (req: Request, res: Response) => {
+    try {
+        const Usuarios = await usuarioService.listarUsuarios();
+        if (!Usuarios) {
+            res.status(400).json(BaseResponse.error(MensajeResponseEnum.NOT_FOUND, 400));
+        }
+        res.status(200).json(BaseResponse.success(Usuarios, 'Lista de Usuarios'));
+
+    } catch (error) {
+        console.error(error)
         res.status(500).json(BaseResponse.error(error.message));
     }
 }
