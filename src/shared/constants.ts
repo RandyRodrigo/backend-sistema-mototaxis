@@ -15,3 +15,4 @@ export const MAIL_PORT: string = process.env.MAIL_PORT || '';
 export const MAIL_USER: string = process.env.MAIL_USER || '';
 export const MAIL_PASSWORD: string = process.env.MAIL_PASSWORD || '';
 export const MAIL_SECURE: string = process.env.MAIL_SECURE || '';
+export const FRONTEND_URL: string = process.env.FRONTEND_URL || '';
