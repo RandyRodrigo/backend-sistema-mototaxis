@@ -4,10 +4,15 @@ import { transporter } from './config/mail.config';
 import BaseResponse from "./shared/base.response";
 import usuarioRouter from './routes/usuario.route';
 import reseteoClaveRouter from './routes/reseteo-clave.route';
+import cors from 'cors';
+import { FRONTEND_URL } from './shared/constants';
 
 const app: Application = express();
 
 app.use(express.json());
+app.use(cors({
+    origin: FRONTEND_URL,
+}));
 
 app.use('/api/v1/usuario', usuarioRouter);
 app.use('/api/v1/reseteo-clave', reseteoClaveRouter);
