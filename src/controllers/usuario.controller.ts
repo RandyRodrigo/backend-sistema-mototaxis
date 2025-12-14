@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import * as usuarioService from "../services/usuario.service";
 import BaseResponse from "../shared/base.response";
 import { insertarUsuarioSchema, loginUsuarioSchema } from "../validators/usuario.schema";
-import { encriptarClave, generarUUID, compararClave } from "../shared/util";
+import { encriptarClave, generarUUID, compararClave, generarToken } from "../shared/util";
 import { MensajeResponseEnum } from "../enums/mensaje.enums";
 
 export const insertarUsuario = async (req: Request, res: Response) => {
@@ -61,7 +61,11 @@ export const loginUsuario = async (req: Request, res: Response) => {
             return;
         }
         const usuario = await usuarioService.obtenerUsuario(usuarioConClave.idUsuario);
-        res.status(200).json(BaseResponse.success(usuario, 'Inicio de sesión exitoso'));
+
+        // Generar token JWT
+        const token = generarToken(usuario.idUsuario);
+
+        res.status(200).json(BaseResponse.success({ token, usuario }, 'Inicio de sesión exitoso'));
         return;
     } catch (error) {
         console.error(error);

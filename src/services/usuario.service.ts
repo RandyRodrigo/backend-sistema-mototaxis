@@ -46,3 +46,16 @@ export const obtenerUsuarioPorCorreo = async (correo: string): Promise<Usuario |
         }
     });
 };
+
+export const obtenerUsuarioPorId = async (idUsuario: string): Promise<Usuario | null> => {
+    return await repository.findOne({
+        where: {
+            idUsuario,
+            estadoAuditoria: EstadoAuditoriaEnum.ACTIVO
+        }
+    });
+};
+
+export const cambiarClaveUsuario = async (idUsuario: string, clave: string) => {
+    await repository.update(idUsuario, { clave });
+};
