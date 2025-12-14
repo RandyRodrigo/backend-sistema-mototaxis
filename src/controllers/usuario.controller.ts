@@ -1,10 +1,8 @@
 import { Request, Response } from "express";
 import * as usuarioService from "../services/usuario.service";
 import BaseResponse from "../shared/base.response";
-import { insertarUsuarioSchema, loginUsuarioSchema } from "../validators/usuario.schema";
 import { encriptarClave, generarUUID, compararClave, generarToken } from "../shared/util";
 import { insertarUsuarioSchema, loginUsuarioSchema, actualizarUsuarioSchema } from "../validators/usuario.schema";
-import { encriptarClave, generarUUID, compararClave } from "../shared/util";
 import { MensajeResponseEnum } from "../enums/mensaje.enums";
 
 export const insertarUsuario = async (req: Request, res: Response) => {
