@@ -41,3 +41,14 @@ export const resetearClaveSchema = Joi.object({
         'any.required': 'El campo confirmación de clave es obligatorio.',
     })
 });
+
+export const actualizarUsuarioSchema = Joi.object({
+    idUsuario: Joi.string().required().messages({
+        'any.required': 'El idUsuario es obligatorio.'
+    }),
+    nombre: Joi.string().optional(),
+    apellidoPaterno: Joi.string().optional(),
+    apellidoMaterno: Joi.string().optional(),
+    correo: Joi.string().email().optional(),
+    telefono: Joi.string().optional()
+});

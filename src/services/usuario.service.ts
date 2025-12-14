@@ -46,3 +46,23 @@ export const obtenerUsuarioPorCorreo = async (correo: string): Promise<Usuario |
         }
     });
 };
+
+export const actualizarUsuario = async (idUsuario: string, data: Partial<Usuario>): Promise<Usuario | null> => {
+    const usuario = await repository.findOne({
+        where: { idUsuario, estadoAuditoria: EstadoAuditoriaEnum.ACTIVO }
+    });
+
+    if (!usuario) {
+        return null;
+    }
+
+    if (data.correo && data.correo !== usuario.correo) {
+        const usuarioExistente = await obtenerUsuarioPorCorreo(data.correo);
+        if (usuarioExistente && usuarioExistente.idUsuario !== idUsuario) {
+            throw new Error("El correo ya está registrado por otro usuario.");
+        }
+    }
+
+    repository.merge(usuario, data);
+    return await repository.save(usuario);
+};
