@@ -20,3 +20,4 @@ export const MAX_TIME_PASSWORD_RESET_MINUTES = 5;
 
 export const JWT_SECRET: string = process.env.JWT_SECRET || '';
 export const JWT_EXPIRES_IN: string = process.env.JWT_EXPIRES_IN || '24h';
+export const FRONTEND_URL: string = process.env.FRONTEND_URL || '';
