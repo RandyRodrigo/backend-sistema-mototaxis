@@ -1,5 +1,6 @@
-import { Column, Entity, PrimaryColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from "typeorm";
+import { Column, Entity, PrimaryColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, OneToOne } from "typeorm";
 import { Rol } from "./rol";
+import { Moto } from "./moto";
 
 @Entity('usuarios')
 export class Usuario {
@@ -28,6 +29,9 @@ export class Usuario {
 
     @Column({ name: 'telefono' })
     telefono: string;
+
+    @OneToOne(() => Moto, (moto) => moto.usuario)
+    moto: Moto;
 
     @Column({ name: 'estado_auditoria' })
     estadoAuditoria: number;
