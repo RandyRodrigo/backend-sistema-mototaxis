@@ -19,7 +19,7 @@ export const insertarMoto = async (req: Request, res: Response) => {
             res.status(400).json(BaseResponse.error("Numero de moto ya registrado", 400));
             return;
         }
-        const nuevaMoto = await motoService.insertarMoto(numeroMoto);
+        const nuevaMoto = await motoService.insertarMoto({numeroMoto});
         res.status(201).json(BaseResponse.success(nuevaMoto, 'Moto registrada correctamente'));
         return;
     } catch (error) {
@@ -69,6 +69,24 @@ export const asignarUsuarioAMoto = async (req: Request, res: Response) => {
 
         const motoAsignada = await motoService.asignarUsuarioAMoto(numeroMoto, idUsuario);
         res.status(200).json(BaseResponse.success(motoAsignada, 'Moto asignada correctamente'));
+    } catch (error) {
+        console.error(error);
+        res.status(500).json(BaseResponse.error(error.message));
+    }
+}
+
+export const obtenerMotoUsuario = async (req: Request, res: Response) => {
+    try {
+        const idUsuario = req.user?.idUsuario;
+
+        if (!idUsuario) {
+            res.status(401).json(BaseResponse.error("Usuario no autenticado", 401));
+            return;
+        }
+
+        const moto = await motoService.obtenerMotoPorIdUsuario(idUsuario);
+
+        res.status(200).json(BaseResponse.success(moto, 'Moto obtenida correctamente'));
     } catch (error) {
         console.error(error);
         res.status(500).json(BaseResponse.error(error.message));

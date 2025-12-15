@@ -70,3 +70,12 @@ export const asignarUsuarioAMoto = async (numeroMoto: number, idUsuario: string)
 
     return await repository.save(moto);
 };
+
+export const obtenerMotoPorIdUsuario = async (idUsuario: string): Promise<Moto | null> => {
+    return await repository.findOne({
+        where: {
+            usuario: { idUsuario },
+            estadoAuditoria: EstadoAuditoriaEnum.ACTIVO
+        }
+    });
+};
