@@ -16,7 +16,7 @@ export const solicitarRecuperacionClave = async (req: Request, res: Response) =>
         console.log('usuario', usuario);
         if (usuario) {
             const reseteoClave = await reseteoClaveService.insertarReseteoClave({ usuario });
-            const enlaceReseteo = `http://localhost:3000/resetear-clave/${reseteoClave.idReseteoClave}`;
+            const enlaceReseteo = `${process.env.FRONTEND_URL}/new-password/${reseteoClave.idReseteoClave}`;
             const dataMail = {
                 nombre: usuario.nombre,
                 enlace: enlaceReseteo
