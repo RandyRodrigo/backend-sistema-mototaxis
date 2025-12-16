@@ -5,15 +5,16 @@ import { Usuario } from "../entities/usuario";
 import { ReseteoClave } from "../entities/reseteo-clave";
 import { Moto } from "../entities/moto";
 import { Paradero } from "../entities/paradero";
+import { Asistencia } from "../entities/asistencia";
 
 export const AppDataSource = new DataSource({
     type: DB_TYPE as any,
     host: DB_HOST,
-    port: Number(DB_PORT || '0'),
+    port: Number(DB_PORT),
     username: DB_USERNAME,
     password: DB_PASSWORD,
     database: DB_DATABASE,
     logging: DB_LOGGING === 'true',
-    entities: [Rol, Usuario, ReseteoClave, Moto, Paradero],
+    entities: [Rol, Usuario, ReseteoClave, Moto, Paradero, Asistencia],
     synchronize: false
 });
