@@ -6,3 +6,7 @@ export const registrarAsistenciaSchema = Joi.object({
     lat: Joi.number().optional(),
     lng: Joi.number().optional()
 });
+
+export const obtenerAsistenciasPorMotoSchema = Joi.object({
+    numeroMoto: Joi.number().required()
+});
