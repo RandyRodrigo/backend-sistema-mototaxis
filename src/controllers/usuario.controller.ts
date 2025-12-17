@@ -29,7 +29,8 @@ export const insertarUsuario = async (req: Request, res: Response) => {
             apellidoMaterno,
             correo,
             telefono,
-            clave: claveEncriptada
+            clave: claveEncriptada,
+            id_rol: 2
         };
 
         const nuevoUsuario = await usuarioService.insertarUsuario(usuario);

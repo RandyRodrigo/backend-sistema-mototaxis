@@ -4,7 +4,7 @@ import { Usuario } from "./usuario";
 @Entity('roles')
 export class Rol {
     @PrimaryColumn({ name: 'id_rol' })
-    idRol: string;
+    idRol: number;
 
     @Column({ name: 'nombre' })
     nombre: string;

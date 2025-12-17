@@ -14,6 +14,9 @@ export class Usuario {
     @Column({ name: 'clave', select: false })
     clave: string;
 
+    @Column({ name: 'id_rol' })
+    id_rol: number;
+
     @ManyToOne(() => Rol, (rol) => rol.usuarios)
     @JoinColumn({ name: 'id_rol' })
     rol: Rol;
