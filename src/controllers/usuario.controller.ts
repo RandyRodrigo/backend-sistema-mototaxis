@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import * as usuarioService from "../services/usuario.service";
 import BaseResponse from "../shared/base.response";
 import { encriptarClave, generarUUID, compararClave, generarToken } from "../shared/util";
-import { insertarUsuarioSchema, loginUsuarioSchema, actualizarUsuarioSchema } from "../validators/usuario.schema";
+import { insertarUsuarioSchema, loginUsuarioSchema, actualizarUsuarioSchema, modificarUsuarioSchema } from "../validators/usuario.schema";
 import { MensajeResponseEnum } from "../enums/mensaje.enums";
 
 export const insertarUsuario = async (req: Request, res: Response) => {
@@ -60,6 +60,31 @@ export const actualizarUsuario = async (req: Request, res: Response) => {
         }
 
         res.status(200).json(BaseResponse.success(usuarioActualizado, 'Usuario actualizado correctamente'));
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json(BaseResponse.error(error.message));
+    }
+}
+
+export const modificarUsuario = async (req: Request, res: Response) => {
+    try {
+        const { error } = modificarUsuarioSchema.validate(req.body);
+        if (error) {
+            res.status(400).json(BaseResponse.error(error.message, 400));
+            return;
+        }
+
+        const { idUsuario, ...dataToUpdate } = req.body;
+
+        const usuarioActualizado = await usuarioService.actualizarUsuario(idUsuario, dataToUpdate);
+
+        if (!usuarioActualizado) {
+            res.status(404).json(BaseResponse.error("Usuario no encontrado", 404));
+            return;
+        }
+
+        res.status(200).json(BaseResponse.success(usuarioActualizado, 'Usuario modificado correctamente'));
 
     } catch (error) {
         console.error(error);

@@ -52,3 +52,15 @@ export const actualizarUsuarioSchema = Joi.object({
     correo: Joi.string().email().optional(),
     telefono: Joi.string().optional()
 });
+
+export const modificarUsuarioSchema = Joi.object({
+    idUsuario: Joi.string().required().messages({
+        'any.required': 'El idUsuario es obligatorio.'
+    }),
+    nombre: Joi.string().optional(),
+    apellidoPaterno: Joi.string().optional(),
+    apellidoMaterno: Joi.string().optional(),
+    correo: Joi.string().email().optional(),
+    telefono: Joi.string().optional(),
+    id_rol: Joi.number().optional()
+});
