@@ -112,3 +112,29 @@ export const listarUsuarios = async (req: Request, res: Response) => {
         res.status(500).json(BaseResponse.error(error.message));
     }
 }
+
+export const listarAdmins = async (req: Request, res: Response) => {
+    try {
+        const admins = await usuarioService.listarUsuariosPorRol(1);
+        if (!admins) {
+            res.status(400).json(BaseResponse.error(MensajeResponseEnum.NOT_FOUND, 400));
+        }
+        res.status(200).json(BaseResponse.success(admins, 'Lista de Admins'));
+    } catch (error) {
+        console.error(error)
+        res.status(500).json(BaseResponse.error(error.message));
+    }
+}
+
+export const listarConductores = async (req: Request, res: Response) => {
+    try {
+        const conductores = await usuarioService.listarUsuariosPorRol(2);
+        if (!conductores) {
+            res.status(400).json(BaseResponse.error(MensajeResponseEnum.NOT_FOUND, 400));
+        }
+        res.status(200).json(BaseResponse.success(conductores, 'Lista de Conductores'));
+    } catch (error) {
+        console.error(error)
+        res.status(500).json(BaseResponse.error(error.message));
+    }
+}

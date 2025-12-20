@@ -38,6 +38,16 @@ export const listarUsuarios = async () => {
         }
     });
 };
+
+export const listarUsuariosPorRol = async (idRol: number) => {
+    return await repository.find({
+        where: {
+            estadoAuditoria: EstadoAuditoriaEnum.ACTIVO,
+            id_rol: idRol
+        }
+    });
+}
+
 export const obtenerUsuarioPorCorreo = async (correo: string): Promise<Usuario | null> => {
     return await repository.findOne({
         where: {
