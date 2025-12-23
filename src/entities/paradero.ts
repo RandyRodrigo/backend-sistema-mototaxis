@@ -3,8 +3,8 @@ import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeor
 @Entity('paraderos')
 export class Paradero {
 
-    @PrimaryGeneratedColumn({ name: 'id' })
-    id: number;
+    @PrimaryGeneratedColumn({ name: 'id_paradero' })
+    idParadero: number;
 
     @Column({ name: 'nombre' })
     nombre: string;
