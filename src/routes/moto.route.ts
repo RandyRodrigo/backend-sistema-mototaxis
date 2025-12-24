@@ -1,9 +1,10 @@
 import { Router } from "express";
-import { insertarMoto, asignarUsuarioAMoto, listarMotosDisponibles, obtenerMotoUsuario } from "../controllers/moto.controller";
+import { insertarMoto, asignarUsuarioAMoto, listarMotosDisponibles, obtenerMotoUsuario, listarMotos } from "../controllers/moto.controller";
 import { verificarToken } from "../middlewares/auth.middleware";
 
 const router = Router();
 
+router.get('/', listarMotos);
 router.post('/insertar-moto', insertarMoto);
 router.get('/motos-disponibles', verificarToken, listarMotosDisponibles);
 router.put('/asignar-usuario-a-moto', verificarToken, asignarUsuarioAMoto);

@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import BaseResponse from "../shared/base.response";
 import { asignarUsuarioAMotoSchema, insertarMotoSchema } from "../validators/moto.schema";
 import * as motoService from "../services/moto.service";
-import * as usuarioService from "../services/usuario.service";
+import { obtenerUsuarioPorId } from "../services/usuario.service";
 
 export const insertarMoto = async (req: Request, res: Response) => {
     try {
@@ -22,6 +22,16 @@ export const insertarMoto = async (req: Request, res: Response) => {
         const nuevaMoto = await motoService.insertarMoto({numeroMoto});
         res.status(201).json(BaseResponse.success(nuevaMoto, 'Moto registrada correctamente'));
         return;
+    } catch (error) {
+        console.error(error);
+        res.status(500).json(BaseResponse.error(error.message));
+    }
+}
+
+export const listarMotos = async (req: Request, res: Response) => {
+    try {
+        const motos = await motoService.listarMotos();
+        res.status(200).json(BaseResponse.success(motos, 'Motos obtenidas correctamente'));
     } catch (error) {
         console.error(error);
         res.status(500).json(BaseResponse.error(error.message));
@@ -62,7 +72,7 @@ export const asignarUsuarioAMoto = async (req: Request, res: Response) => {
         }
 
         // Verificar que el usuario existe
-        if (!(await usuarioService.obtenerUsuarioPorId(idUsuario))) {
+        if (!(await obtenerUsuarioPorId(idUsuario))) {
             res.status(404).json(BaseResponse.error("Usuario no encontrado", 404));
             return;
         }
