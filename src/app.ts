@@ -7,6 +7,7 @@ import reseteoClaveRouter from './routes/reseteo-clave.route';
 import motoRouter from './routes/moto.route';
 import paraderoRouter from './routes/paradero.route';
 import asistenciaRouter from './routes/asistencia.route';
+import turnoRouter from './routes/turno.route';
 import cors from 'cors';
 import { FRONTEND_URL } from './shared/constants';
 
@@ -22,6 +23,7 @@ app.use('/api/v1/reseteo-clave', reseteoClaveRouter);
 app.use('/api/v1/moto', motoRouter);
 app.use('/api/v1/paradero', paraderoRouter);
 app.use('/api/v1/asistencia', asistenciaRouter);
+app.use('/api/v1/turno', turnoRouter);
 
 app.use((req, res) => {
     res.status(404).json(BaseResponse.error('Recurso no encontrado', 404));

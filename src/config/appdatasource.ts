@@ -6,6 +6,8 @@ import { ReseteoClave } from "../entities/reseteo-clave";
 import { Moto } from "../entities/moto";
 import { Paradero } from "../entities/paradero";
 import { Asistencia } from "../entities/asistencia";
+import { Turno } from "../entities/turno";
+
 
 export const AppDataSource = new DataSource({
     type: DB_TYPE as any,
@@ -15,6 +17,6 @@ export const AppDataSource = new DataSource({
     password: DB_PASSWORD,
     database: DB_DATABASE,
     logging: DB_LOGGING === 'true',
-    entities: [Rol, Usuario, ReseteoClave, Moto, Paradero, Asistencia],
+    entities: [Rol, Usuario, ReseteoClave, Moto, Paradero, Asistencia, Turno],
     synchronize: false
 });
