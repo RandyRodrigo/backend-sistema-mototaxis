@@ -1,10 +1,10 @@
 import { Router } from "express";
-import * as turnoController from "../controllers/turno.controller";
+import { eliminarTurno, insertarTurno, listarTurnos } from "../controllers/turno.controller";
 
 const router = Router();
 
-router.get('/', turnoController.listarTurnos);
-router.post('/insertar-turno', turnoController.insertarTurno);
-router.delete('/eliminar-turno/:idTurno', turnoController.eliminarTurno);
+router.get('/', listarTurnos);
+router.post('/insertar-turno', insertarTurno);
+router.delete('/eliminar-turno/:idTurno', eliminarTurno);
 
 export default router;
