@@ -4,8 +4,8 @@ import { eliminarTurno, insertarTurno, listarTurnos, actualizarTurno } from "../
 const router = Router();
 
 router.get('/', listarTurnos);
-router.post('/insertar-turno', insertarTurno);
-router.delete('/eliminar-turno/:idTurno', eliminarTurno);
+router.post('/insertar', insertarTurno);
+router.delete('/eliminar/:idTurno', eliminarTurno);
 router.patch('/actualizar', actualizarTurno);
 
 export default router;
