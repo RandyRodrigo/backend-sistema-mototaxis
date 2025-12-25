@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import BaseResponse from "../shared/base.response";
 import * as turnoService from "../services/turno.service";
-import { insertarTurnoSchema } from "../validators/turno.schema";
+import { insertarTurnoSchema, actualizarTurnoSchema } from "../validators/turno.schema";
 
 export const listarTurnos = async (req: Request, res: Response) => {
     try {
@@ -41,6 +41,30 @@ export const eliminarTurno = async (req: Request, res: Response) => {
 
         await turnoService.eliminarTurno(Number(idTurno));
         res.status(200).json(BaseResponse.success(null, 'Turno eliminado correctamente'));
+    } catch (error) {
+        console.error(error);
+        res.status(500).json(BaseResponse.error(error.message));
+    }
+}
+
+export const actualizarTurno = async (req: Request, res: Response) => {
+    try {
+        const { error } = actualizarTurnoSchema.validate(req.body);
+        if (error) {
+            res.status(400).json(BaseResponse.error(error.message, 400));
+            return;
+        }
+
+        const { idTurno, ...dataToUpdate } = req.body;
+
+        const turnoActualizado = await turnoService.actualizarTurno(idTurno, dataToUpdate);
+
+        if (!turnoActualizado) {
+            res.status(404).json(BaseResponse.error('Turno no encontrado', 404));
+            return;
+        }
+
+        res.status(200).json(BaseResponse.success(turnoActualizado, 'Turno actualizado correctamente'));
     } catch (error) {
         console.error(error);
         res.status(500).json(BaseResponse.error(error.message));
