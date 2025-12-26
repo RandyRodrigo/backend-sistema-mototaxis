@@ -79,3 +79,12 @@ export const obtenerMotoPorIdUsuario = async (idUsuario: string): Promise<Moto |
         }
     });
 };
+
+export const actualizarMoto = async (idMoto: string, data: Partial<Moto>): Promise<Moto> => {
+    const moto = await repository.findOne({ where: { idMoto } });
+    if (!moto) {
+        throw new Error('Moto no encontrada');
+    }
+    repository.merge(moto, data);
+    return await repository.save(moto);
+};

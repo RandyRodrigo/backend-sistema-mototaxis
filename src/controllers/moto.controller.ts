@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import BaseResponse from "../shared/base.response";
-import { asignarUsuarioAMotoSchema, insertarMotoSchema } from "../validators/moto.schema";
+import { actualizarMotoSchema, asignarUsuarioAMotoSchema, insertarMotoSchema } from "../validators/moto.schema";
 import * as motoService from "../services/moto.service";
 import { obtenerUsuarioPorId } from "../services/usuario.service";
 
@@ -97,6 +97,30 @@ export const obtenerMotoUsuario = async (req: Request, res: Response) => {
         const moto = await motoService.obtenerMotoPorIdUsuario(idUsuario);
 
         res.status(200).json(BaseResponse.success(moto, 'Moto obtenida correctamente'));
+    } catch (error) {
+        console.error(error);
+        res.status(500).json(BaseResponse.error(error.message));
+    }
+}
+
+export const actualizarMoto = async (req: Request, res: Response) => {
+    try {
+        const { error } = actualizarMotoSchema.validate(req.body);
+        if (error) {
+            res.status(400).json(BaseResponse.error(error.message, 400));
+            return;
+        }
+
+        const { idMoto } = req.body;
+
+        const moto = await motoService.obtenerMotoPorId(idMoto);
+        if (!moto) {
+            res.status(404).json(BaseResponse.error("Moto no encontrada", 404));
+            return;
+        }
+
+        const motoActualizada = await motoService.actualizarMoto(idMoto, req.body);
+        res.status(200).json(BaseResponse.success(motoActualizada, 'Moto actualizada correctamente'));
     } catch (error) {
         console.error(error);
         res.status(500).json(BaseResponse.error(error.message));
