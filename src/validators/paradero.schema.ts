@@ -7,3 +7,12 @@ export const insertarParaderoSchema = Joi.object({
     lng: Joi.number().optional(),
     radioMetros: Joi.number().integer().optional()
 });
+
+export const actualizarParaderoSchema = Joi.object({
+    idParadero: Joi.number().required(),
+    nombre: Joi.string().max(150).optional(),
+    direccion: Joi.string().max(255).optional(),
+    lat: Joi.number().optional(),
+    lng: Joi.number().optional(),
+    radioMetros: Joi.number().integer().optional()
+});
