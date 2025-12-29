@@ -12,15 +12,15 @@ export const insertarTurno = async (data: Partial<Turno>): Promise<Turno> => {
     return await repository.save(nuevoTurno);
 };
 
-export const obtenerTurnoPorId = async (idTurno: number): Promise<Turno | null> => {
+export const obtenerTurnoPorId = async (idTurno: string): Promise<Turno | null> => {
     return await repository.findOne({ where: { idTurno } });
 };
 
-export const eliminarTurno = async (idTurno: number): Promise<void> => {
+export const eliminarTurno = async (idTurno: string): Promise<void> => {
     await repository.delete(idTurno);
 };
 
-export const actualizarTurno = async (idTurno: number, data: Partial<Turno>): Promise<Turno | null> => {
+export const actualizarTurno = async (idTurno: string, data: Partial<Turno>): Promise<Turno | null> => {
     await repository.update(idTurno, data);
     return await obtenerTurnoPorId(idTurno);
 };

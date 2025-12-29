@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import * as usuarioService from "../services/usuario.service";
 import BaseResponse from "../shared/base.response";
-import { encriptarClave, generarUUID, compararClave, generarToken } from "../shared/util";
+import { compararClave, generarToken } from "../shared/util";
 import { insertarUsuarioSchema, loginUsuarioSchema, actualizarUsuarioSchema, modificarUsuarioSchema } from "../validators/usuario.schema";
 import { MensajeResponseEnum } from "../enums/mensaje.enums";
 
@@ -12,28 +12,12 @@ export const insertarUsuario = async (req: Request, res: Response) => {
             res.status(400).json(BaseResponse.error(error.message, 400));
             return;
         }
-
-        const { nombre, apellidoPaterno, apellidoMaterno, correo, telefono, clave } = req.body;
-
-        const usuarioRegistrado = await usuarioService.obtenerUsuarioConClavePorCorreo(correo);
+        const usuarioRegistrado = await usuarioService.obtenerUsuarioConClavePorCorreo(req.body.correo);
         if (usuarioRegistrado) {
             res.status(400).json(BaseResponse.error("El usuario con ese correo ya existe", 400));
             return;
         }
-
-        const claveEncriptada = await encriptarClave(clave);
-        const usuario = {
-            idUsuario: generarUUID(),
-            nombre,
-            apellidoPaterno,
-            apellidoMaterno,
-            correo,
-            telefono,
-            clave: claveEncriptada,
-            id_rol: 2
-        };
-
-        const nuevoUsuario = await usuarioService.insertarUsuario(usuario);
+        const nuevoUsuario = await usuarioService.insertarUsuario(req.body);
         res.status(201).json(BaseResponse.success(nuevoUsuario, 'Usuario registrado correctamente'));
         return;
     } catch (error) {

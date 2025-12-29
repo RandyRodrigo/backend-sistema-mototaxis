@@ -32,14 +32,14 @@ export const insertarTurno = async (req: Request, res: Response) => {
 export const eliminarTurno = async (req: Request, res: Response) => {
     try {
         const { idTurno } = req.params;
-        const turno = await turnoService.obtenerTurnoPorId(Number(idTurno));
+        const turno = await turnoService.obtenerTurnoPorId(String(idTurno));
         
         if (!turno) {
             res.status(404).json(BaseResponse.error('Turno no encontrado', 404));
             return;
         }
 
-        await turnoService.eliminarTurno(Number(idTurno));
+        await turnoService.eliminarTurno(String(idTurno));
         res.status(200).json(BaseResponse.success(null, 'Turno eliminado correctamente'));
     } catch (error) {
         console.error(error);

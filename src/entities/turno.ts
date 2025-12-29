@@ -1,10 +1,10 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from "typeorm";
 
 @Entity('turnos')
 export class Turno {
 
-    @PrimaryGeneratedColumn({ name: 'id_turno' })
-    idTurno: number;
+    @PrimaryColumn({ name: 'id_turno' })
+    idTurno: string;
 
     @Column({ name: 'nombre', length: 100 })
     nombre: string;
@@ -15,6 +15,12 @@ export class Turno {
     @Column({ name: 'hora_fin', type: 'time' })
     horaFin: string;
 
-    @Column({ name: 'activo', default: 1 })
-    activo: number;
+    @Column({ name: 'estado_auditoria' })
+    estadoAuditoria: number;
+    
+    @CreateDateColumn({ name: 'fecha_creacion' })
+    fechaCreacion: Date;
+    
+    @UpdateDateColumn({ name: 'fecha_modificacion' })
+    fechaModificacion: Date;
 }

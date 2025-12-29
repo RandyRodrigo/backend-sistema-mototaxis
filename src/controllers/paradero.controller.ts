@@ -10,7 +10,6 @@ export const insertarParadero = async (req: Request, res: Response) => {
             res.status(400).json(BaseResponse.error(error.message, 400));
             return;
         }
-
         const nuevoParadero = await paraderoService.insertarParadero(req.body);
         res.status(201).json(BaseResponse.success(nuevoParadero, 'Paradero registrado correctamente'));
     } catch (error) {

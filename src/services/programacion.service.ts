@@ -15,7 +15,7 @@ export const listarProgramacion = async (): Promise<Programacion[]> => {
     });
 };
 
-export const insertarProgramacion = async (data: { idMoto: string, idParadero: number, idTurno: number, fecha: string }): Promise<Programacion> => {
+export const insertarProgramacion = async (data: { idMoto: string, idParadero: string, idTurno: string, fecha: string }): Promise<Programacion> => {
     const moto = await motoRepository.findOneBy({ idMoto: data.idMoto });
     if (!moto) throw new Error('Moto no encontrada');
 

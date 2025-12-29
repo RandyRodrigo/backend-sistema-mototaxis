@@ -1,11 +1,19 @@
 import { AppDataSource } from "../config/appdatasource";
 import { Usuario } from "../entities/usuario";
 import { EstadoAuditoriaEnum } from "../enums/estado-auditoria.enums";
-
+import { v4 as uuidv4 } from 'uuid';
+import { encriptarClave } from '../shared/util';
 const repository = AppDataSource.getRepository(Usuario);
 
 export const insertarUsuario = async (data: Partial<Usuario>): Promise<Usuario> => {
-    return await repository.save(data);
+    const claveEncriptada = await encriptarClave(data.clave);
+    const nuevoUsuario = repository.create({
+        ...data,
+        idUsuario: uuidv4(),
+        clave: claveEncriptada,
+        id_rol: 2
+    });
+    return await repository.save(nuevoUsuario);
 };
 
 export const obtenerUsuarioConClavePorCorreo = async (correo: string): Promise<Usuario | null> => {

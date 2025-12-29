@@ -1,10 +1,10 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from "typeorm";
 
 @Entity('paraderos')
 export class Paradero {
 
-    @PrimaryGeneratedColumn({ name: 'id_paradero' })
-    idParadero: number;
+    @PrimaryColumn({ name: 'id_paradero' })
+    idParadero: string;
 
     @Column({ name: 'nombre' })
     nombre: string;
@@ -21,6 +21,12 @@ export class Paradero {
     @Column({ name: 'radio_metros', default: 200 })
     radioMetros: number;
 
-    @CreateDateColumn({ name: 'creado_en' })
-    creadoEn: Date;
+    @Column({ name: 'estado_auditoria' })
+    estadoAuditoria: number;
+    
+    @CreateDateColumn({ name: 'fecha_creacion' })
+    fechaCreacion: Date;
+    
+    @UpdateDateColumn({ name: 'fecha_modificacion' })
+    fechaModificacion: Date;
 }

@@ -9,7 +9,7 @@ export const insertarParaderoSchema = Joi.object({
 });
 
 export const actualizarParaderoSchema = Joi.object({
-    idParadero: Joi.number().required(),
+    idParadero: Joi.string().required(),
     nombre: Joi.string().max(150).optional(),
     direccion: Joi.string().max(255).optional(),
     lat: Joi.number().optional(),
