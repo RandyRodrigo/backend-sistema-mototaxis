@@ -203,7 +203,7 @@ CREATE TABLE programacion (
   id_programacion BIGINT AUTO_INCREMENT PRIMARY KEY,
   id_moto VARCHAR(36) NOT NULL,
   id_paradero VARCHAR(36) NOT NULL,
-  id_turno INT NOT NULL,
+  id_turno VARCHAR(36) NOT NULL,
   fecha DATE NOT NULL,
   creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (id_moto) REFERENCES motos(id_moto),
