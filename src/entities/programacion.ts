@@ -18,7 +18,7 @@ export class Programacion {
     paradero: Paradero;
 
     @ManyToOne(() => Turno)
-    @JoinColumn({ name: 'turno_id' })
+    @JoinColumn({ name: 'id_turno' })
     turno: Turno;
 
     @Column({ name: 'fecha', type: 'date' })
