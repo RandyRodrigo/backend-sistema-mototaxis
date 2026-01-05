@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import BaseResponse from "../shared/base.response";
 import * as programacionService from "../services/programacion.service";
-import { insertarProgramacionSchema } from "../validators/programacion.schema";
+import { actualizarProgramacionSchema, insertarProgramacionSchema } from "../validators/programacion.schema";
 
 export const listarProgramacion = async (req: Request, res: Response) => {
     try {
@@ -27,6 +27,21 @@ export const insertarProgramacion = async (req: Request, res: Response) => {
         console.error(error);
         res.status(500).json(BaseResponse.error(error.message));
     }
+}
+
+export const actualizarProgramacion = async (req: Request, res: Response) => {
+  try {
+    const { error } = actualizarProgramacionSchema.validate(req.body);
+    if (error) {
+        res.status(400).json(BaseResponse.error(error.message, 400));
+        return;
+    }
+    const { idProgramacion } = req.body;
+    const programacionActualizada = await programacionService.actualizarProgramacion(idProgramacion, req.body);
+    res.status(200).json(BaseResponse.success(programacionActualizada, 'Programacion actualizada correctamente'));
+  } catch {
+
+  }
 }
 
 export const eliminarProgramacion = async (req: Request, res: Response) => {
