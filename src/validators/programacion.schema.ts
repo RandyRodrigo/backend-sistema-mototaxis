@@ -16,3 +16,8 @@ export const actualizarProgramacionSchema = Joi.object({
   idTurno: Joi.string().optional(),
   fecha: Joi.date().iso().optional()
 })
+
+export const obtenerProgramacionDeHoyPorMotoSchema = Joi.object({
+    idMoto: Joi.string().required(),
+    fecha: Joi.date().iso().required()
+})

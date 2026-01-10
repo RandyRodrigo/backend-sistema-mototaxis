@@ -56,3 +56,10 @@ export const obtenerProgramacionPorId = async (idProgramacion: number): Promise<
         relations: ['moto', 'paradero', 'turno']
     });
 };
+
+export const obtenerProgramacionDeHoyPorMoto = async (idMoto: string, fecha: string): Promise<Programacion> => {
+    return await repository.findOne({
+        where: { moto: { idMoto }, fecha },
+        relations: ['moto', 'paradero', 'turno']
+    });
+};

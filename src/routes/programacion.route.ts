@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { actualizarProgramacion, eliminarProgramacion, insertarProgramacion, listarProgramacion } from "../controllers/programacion.controller";
+import { actualizarProgramacion, insertarProgramacion, listarProgramacion, obtenerProgramacionDeHoyPorMoto } from "../controllers/programacion.controller";
 
 const router = Router();
 
 router.get('/', listarProgramacion);
 router.post('/insertar', insertarProgramacion);
 router.patch('/actualizar', actualizarProgramacion)
-router.delete('/eliminar-programacion/:idProgramacion', eliminarProgramacion);
+router.get('/mi-programacion', obtenerProgramacionDeHoyPorMoto)
 
 export default router;
