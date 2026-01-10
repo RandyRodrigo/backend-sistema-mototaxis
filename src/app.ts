@@ -9,8 +9,10 @@ import paraderoRouter from './routes/paradero.route';
 import asistenciaRouter from './routes/asistencia.route';
 import turnoRouter from './routes/turno.route';
 import programacionRouter from './routes/programacion.route';
+import programacionAutomaticaRouter from './routes/programacion-automatica.routes';
 import cors from 'cors';
 import { FRONTEND_URL } from './shared/constants';
+import { iniciarCronProgramacionAutomatica } from './config/cron.config';
 
 const app: Application = express();
 
@@ -26,6 +28,7 @@ app.use('/api/v1/paradero', paraderoRouter);
 app.use('/api/v1/asistencia', asistenciaRouter);
 app.use('/api/v1/turno', turnoRouter);
 app.use('/api/v1/programacion', programacionRouter);
+app.use('/api/v1/programacion-automatica', programacionAutomaticaRouter);
 
 app.use((req, res) => {
     res.status(404).json(BaseResponse.error('Recurso no encontrado', 404));
@@ -35,6 +38,9 @@ export const startServer = async () => {
     try {
         await AppDataSource.initialize();
         console.log('La base de datos se ha conectado correctamente');
+
+        // Iniciar cron job de programación automática
+        iniciarCronProgramacionAutomatica();
     } catch (error) {
         console.error('Error al conectar a la base de datos:', error);
     }

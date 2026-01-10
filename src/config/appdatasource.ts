@@ -8,6 +8,11 @@ import { Paradero } from "../entities/paradero";
 import { Asistencia } from "../entities/asistencia";
 import { Turno } from "../entities/turno";
 import { Programacion } from "../entities/programacion";
+import { EstadoAlternancia } from "../entities/estado-alternancia";
+import { OrdenLlegadaComite24 } from "../entities/orden-llegada-comite24";
+import { ConfiguracionTurno } from "../entities/configuracion-turno";
+import { TipoPermiso } from "../entities/tipo-permiso";
+import { SolicitudPermiso } from "../entities/solicitud-permiso";
 
 
 export const AppDataSource = new DataSource({
@@ -18,6 +23,20 @@ export const AppDataSource = new DataSource({
     password: DB_PASSWORD,
     database: DB_DATABASE,
     logging: DB_LOGGING === 'true',
-    entities: [Rol, Usuario, ReseteoClave, Moto, Paradero, Asistencia, Turno, Programacion],
+    entities: [
+        Rol,
+        Usuario,
+        ReseteoClave,
+        Moto,
+        Paradero,
+        Asistencia,
+        Turno,
+        Programacion,
+        EstadoAlternancia,
+        OrdenLlegadaComite24,
+        ConfiguracionTurno,
+        TipoPermiso,
+        SolicitudPermiso
+    ],
     synchronize: false
 });

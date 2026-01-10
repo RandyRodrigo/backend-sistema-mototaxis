@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryColumn, UpdateDateColumn } from "typeorm";
 import { Moto } from "./moto";
 import { Paradero } from "./paradero";
 import { Turno } from "./turno";
@@ -6,8 +6,8 @@ import { Turno } from "./turno";
 @Entity('programacion')
 export class Programacion {
 
-    @PrimaryGeneratedColumn({ name: 'id_programacion' })
-    idProgramacion: number;
+    @PrimaryColumn({ name: 'id_programacion' })
+    idProgramacion: string;
 
     @ManyToOne(() => Moto)
     @JoinColumn({ name: 'id_moto' })
@@ -18,12 +18,36 @@ export class Programacion {
     paradero: Paradero;
 
     @ManyToOne(() => Turno)
-    @JoinColumn({ name: 'turno_id' })
+    @JoinColumn({ name: 'id_turno' })
     turno: Turno;
 
     @Column({ name: 'fecha', type: 'date' })
     fecha: string;
 
-    @CreateDateColumn({ name: 'creado_en' })
-    creadoEn: Date;
+    @Column({ name: 'orden_asignacion', nullable: true })
+    ordenAsignacion: number;
+
+    @Column({ name: 'es_compensacion', default: false })
+    esCompensacion: boolean;
+
+    @Column({
+        name: 'tipo_dia',
+        type: 'enum',
+        enum: ['par', 'impar'],
+        nullable: true
+    })
+    tipoDia: string;
+
+    @Column({ name: 'generado_automaticamente', default: true })
+    generadoAutomaticamente: boolean;
+
+    @Column({ name: 'estado_auditoria' })
+    estadoAuditoria: number;
+
+    @CreateDateColumn({ name: 'fecha_creacion' })
+    fechaCreacion: Date;
+
+    @UpdateDateColumn({ name: 'fecha_modificacion' })
+    fechaModificacion: Date;
 }
+

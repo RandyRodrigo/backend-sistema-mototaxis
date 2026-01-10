@@ -35,11 +35,11 @@ export const insertarProgramacion = async (data: { idMoto: string, idParadero: s
     return await repository.save(nuevaProgramacion);
 };
 
-export const eliminarProgramacion = async (idProgramacion: number): Promise<void> => {
+export const eliminarProgramacion = async (idProgramacion: string): Promise<void> => {
     await repository.delete(idProgramacion);
 };
 
-export const obtenerProgramacionPorId = async (idProgramacion: number): Promise<Programacion | null> => {
+export const obtenerProgramacionPorId = async (idProgramacion: string): Promise<Programacion | null> => {
     return await repository.findOne({ 
         where: { idProgramacion },
         relations: ['moto', 'paradero', 'turno']
