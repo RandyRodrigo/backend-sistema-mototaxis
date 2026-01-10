@@ -215,33 +215,23 @@ CREATE TABLE programacion (
 -- ASISTENCIA === ESPERANDO IMPLEMENTACION ⏰
 -- =======================================
 DROP TABLE IF EXISTS asistencia;
-CREATE TABLE asistencia (
-  id BIGINT AUTO_INCREMENT PRIMARY KEY,
-  programacion_id BIGINT,
-  conductor_id INT NOT NULL,
-  vehiculo_id INT,
-  paradero_id INT,
-  tipo ENUM('entrada','salida') NOT NULL,
-  marcado_en DATETIME DEFAULT CURRENT_TIMESTAMP,
-  lat DECIMAL(10,7),
-  lng DECIMAL(10,7),
-  precision_m FLOAT,
-  dispositivo VARCHAR(150),
-  evidencia_media VARCHAR(255),
-  observacion TEXT,
-  verificado TINYINT(1) DEFAULT 0,
-  FOREIGN KEY (programacion_id) REFERENCES programacion(id_programacion),
-  FOREIGN KEY (conductor_id) REFERENCES conductores(id_conductor)
-) ENGINE=InnoDB;
-
--- POR EL MOMENTO ESTAMOS USANDO ESTA
 CREATE TABLE asistencias (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  numero_moto INT NOT NULL,
-  direccion_paradero VARCHAR(255),
-  lat DECIMAL(10,7),
-  lng DECIMAL(10,7),
-  creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  id_asistencia BIGINT AUTO_INCREMENT PRIMARY KEY,
+  id_programacion BIGINT NOT NULL,
+  hora_entrada TIMESTAMP NULL DEFAULT NULL,
+  lat_entrada DECIMAL(10,7) NULL,
+  lng_entrada DECIMAL(10,7) NULL,
+  precision_entrada_metros INT NULL,
+  hora_salida TIMESTAMP NULL DEFAULT NULL,
+  lat_salida DECIMAL(10,7) NULL,
+  lng_salida DECIMAL(10,7) NULL,
+  precision_salida_metros INT NULL,
+  estado_entrada ENUM('pendiente', 'tardanza', 'falta', 'completado') DEFAULT 'pendiente',
+  estado_salida ENUM('pendiente', 'falta', 'completado') DEFAULT 'pendiente',
+  estado_auditoria CHAR(1) NOT NULL DEFAULT '1',
+  fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  fecha_modificacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (id_programacion) REFERENCES programacion(id_programacion)
 ) ENGINE=InnoDB;
 
 -- ==============================
