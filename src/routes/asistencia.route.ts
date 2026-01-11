@@ -1,9 +1,10 @@
 import { Router } from "express";
-import { registrarAsistencia, obtenerAsistenciasPorMoto } from "../controllers/asistencia.controller";
+import * as asistenciaController from "../controllers/asistencia.controller";
 
 const router = Router();
 
-router.post('/marcar-asistencia', registrarAsistencia);
-router.post('/obtener-por-moto', obtenerAsistenciasPorMoto);
+router.post('/entrada', asistenciaController.registrarEntrada);
+router.patch('/salida', asistenciaController.registrarSalida);
+router.get('/', asistenciaController.obtenerAsistencias);
 
 export default router;

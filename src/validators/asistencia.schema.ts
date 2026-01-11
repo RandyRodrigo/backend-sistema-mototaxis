@@ -1,12 +1,20 @@
 import Joi from "joi";
 
-export const registrarAsistenciaSchema = Joi.object({
-    numeroMoto: Joi.number().required(),
-    direccionParadero: Joi.string().max(255).optional(),
-    lat: Joi.number().optional(),
-    lng: Joi.number().optional()
+export const registrarEntradaSchema = Joi.object({
+    idProgramacion: Joi.number().required(),
+    latEntrada: Joi.number().optional(),
+    lngEntrada: Joi.number().optional(),
+    precisionEntradaMetros: Joi.number().integer().optional()
 });
 
-export const obtenerAsistenciasPorMotoSchema = Joi.object({
-    numeroMoto: Joi.number().required()
+export const registrarSalidaSchema = Joi.object({
+    idAsistencia: Joi.number().required(),
+    latSalida: Joi.number().optional(),
+    lngSalida: Joi.number().optional(),
+    precisionSalidaMetros: Joi.number().integer().optional()
+});
+
+export const obtenerAsistenciasSchema = Joi.object({
+    idProgramacion: Joi.number().optional(),
+    fecha: Joi.date().iso().optional()
 });
