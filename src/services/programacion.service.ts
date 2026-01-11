@@ -35,23 +35,12 @@ export const insertarProgramacion = async (data: { idMoto: string, idParadero: s
     return await repository.save(nuevaProgramacion);
 };
 
-export const actualizarProgramacion = async (idProgramacion: number, data: Partial<Programacion>): Promise<Programacion> => {
-  const programacion = await repository.findOne({ where: { idProgramacion } });
-  if (!programacion) {
-      throw new Error('Paradero no encontrado');
-  }
-  // remove id from data
-  const { idProgramacion: id, ...datosToUpdate } = data;
-  repository.merge(programacion, datosToUpdate);
-  return await repository.save(programacion);
-}
-
-export const eliminarProgramacion = async (idProgramacion: number): Promise<void> => {
+export const eliminarProgramacion = async (idProgramacion: string): Promise<void> => {
     await repository.delete(idProgramacion);
 };
 
-export const obtenerProgramacionPorId = async (idProgramacion: number): Promise<Programacion | null> => {
-    return await repository.findOne({
+export const obtenerProgramacionPorId = async (idProgramacion: string): Promise<Programacion | null> => {
+    return await repository.findOne({ 
         where: { idProgramacion },
         relations: ['moto', 'paradero', 'turno']
     });
