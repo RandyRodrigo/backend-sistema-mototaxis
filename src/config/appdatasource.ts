@@ -11,6 +11,7 @@ import { Programacion } from "../entities/programacion";
 import { EstadoAlternancia } from "../entities/estado-alternancia";
 import { OrdenLlegadaComite24 } from "../entities/orden-llegada-comite24";
 import { ConfiguracionTurno } from "../entities/configuracion-turno";
+import { ConfiguracionAsistencia } from "../entities/configuracion-asistencia";
 import { TipoPermiso } from "../entities/tipo-permiso";
 import { SolicitudPermiso } from "../entities/solicitud-permiso";
 
@@ -35,6 +36,7 @@ export const AppDataSource = new DataSource({
         EstadoAlternancia,
         OrdenLlegadaComite24,
         ConfiguracionTurno,
+        ConfiguracionAsistencia,
         TipoPermiso,
         SolicitudPermiso
     ],
