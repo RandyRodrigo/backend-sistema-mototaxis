@@ -149,9 +149,9 @@ export async function marcarAsistencia(
     },
     ipAddress: string
 ): Promise<Asistencia> {
-    // 1. Obtener programación del usuario para hoy
+    // 1. Obtener TODAS las programaciones del usuario para hoy
     const hoy = new Date().toISOString().split('T')[0];
-    const programacion = await programacionRepo.findOne({
+    const programaciones = await programacionRepo.find({
         where: {
             moto: { usuario: { idUsuario } },
             fecha: hoy
@@ -159,14 +159,40 @@ export async function marcarAsistencia(
         relations: ['moto', 'moto.usuario', 'paradero', 'turno']
     });
 
-    if (!programacion) {
+    if (!programaciones || programaciones.length === 0) {
         throw new Error('No tienes programación para hoy');
     }
 
-    // 2. Verificar que no haya marcado ya este tipo
+    // 2. Detectar en qué paradero está el usuario basándose en GPS
+    let programacionActual: typeof programaciones[0] | null = null;
+    let menorDistancia = Infinity;
+
+    for (const prog of programaciones) {
+        const distancia = calcularDistanciaHaversine(
+            dto.latitud,
+            dto.longitud,
+            Number(prog.paradero.lat),
+            Number(prog.paradero.lng)
+        );
+
+        // Si está dentro del radio y es la más cercana
+        if (distancia <= prog.paradero.radioMetros && distancia < menorDistancia) {
+            menorDistancia = distancia;
+            programacionActual = prog;
+        }
+    }
+
+    if (!programacionActual) {
+        throw new Error(
+            `No estás cerca de ninguno de tus paraderos asignados. ` +
+            `Asegúrate de estar dentro del radio de: ${programaciones.map(p => p.paradero.nombre).join(', ')}`
+        );
+    }
+
+    // 3. Verificar que no haya marcado ya este tipo para ESTA programación
     const marcadoExistente = await asistenciaRepo.findOne({
         where: {
-            idProgramacion: programacion.idProgramacion,
+            idProgramacion: programacionActual.idProgramacion,
             tipoMarcado: dto.tipo_marcado
         }
     });
@@ -179,7 +205,7 @@ export async function marcarAsistencia(
     if (dto.tipo_marcado === 'salida') {
         const marcadoLlegada = await asistenciaRepo.findOne({
             where: {
-                idProgramacion: programacion.idProgramacion,
+                idProgramacion: programacionActual.idProgramacion,
                 tipoMarcado: 'llegada'
             }
         });
@@ -194,7 +220,7 @@ export async function marcarAsistencia(
 
         // Validar que esté dentro del rango de tiempo para marcar salida
         const ahora = new Date();
-        const [horaFin, minutoFin] = programacion.turno.horaFin.split(':').map(Number);
+        const [horaFin, minutoFin] = programacionActual.turno.horaFin.split(':').map(Number);
         const horaFinTurno = new Date(ahora);
         horaFinTurno.setHours(horaFin, minutoFin, 0, 0);
 
@@ -212,7 +238,7 @@ export async function marcarAsistencia(
             const horasRestantes = Math.floor((tiempoMinimoSalida.getTime() - ahora.getTime()) / (1000 * 60 * 60));
             const minutosRestantes = Math.floor(((tiempoMinimoSalida.getTime() - ahora.getTime()) % (1000 * 60 * 60)) / (1000 * 60));
             throw new Error(
-                `Aún no puedes marcar salida. El turno termina a las ${programacion.turno.horaFin}. ` +
+                `Aún no puedes marcar salida. El turno termina a las ${programacionActual.turno.horaFin}. ` +
                 `Puedes marcar desde las ${tiempoMinimoSalida.getHours().toString().padStart(2, '0')}:${tiempoMinimoSalida.getMinutes().toString().padStart(2, '0')}. ` +
                 `Faltan ${horasRestantes}h ${minutosRestantes}min`
             );
@@ -223,45 +249,89 @@ export async function marcarAsistencia(
     const { dentroRadio, distancia } = await validarUbicacionGPS(
         dto.latitud,
         dto.longitud,
-        programacion.paradero.idParadero
+        programacionActual.paradero.idParadero
     );
 
     if (!dentroRadio) {
         throw new Error(
             `Estás a ${distancia.toFixed(0)}m del paradero. ` +
-            `Debes estar dentro de ${programacion.paradero.radioMetros}m`
+            `Debes estar dentro de ${programacionActual.paradero.radioMetros}m`
         );
     }
 
-    // 4. Determinar estado de asistencia
+    // 4. Validar ventana de tiempo permitida
+    const ahora = new Date();
     const horaEsperada =
         dto.tipo_marcado === 'llegada'
-            ? programacion.turno.horaInicio
-            : programacion.turno.horaFin;
+            ? programacionActual.turno.horaInicio
+            : programacionActual.turno.horaFin;
 
+    // Obtener configuración de tolerancia
+    const config = await configuracionRepo.findOne({
+        where: { tipoMarcado: dto.tipo_marcado }
+    });
+    const toleranciaMinutos = config?.toleranciaMinutos || 15;
+
+    // Calcular ventana de tiempo permitida
+    const [hora, minuto] = horaEsperada.split(':').map(Number);
+    const horaEsperadaDate = new Date(ahora);
+    horaEsperadaDate.setHours(hora, minuto, 0, 0);
+
+    const tiempoMinimo = new Date(horaEsperadaDate);
+    const tiempoMaximo = new Date(horaEsperadaDate);
+
+    if (dto.tipo_marcado === 'llegada') {
+        // Para llegada: puede marcar desde 1 hora antes hasta tolerancia después
+        tiempoMinimo.setHours(tiempoMinimo.getHours() - 1);
+        tiempoMaximo.setMinutes(tiempoMaximo.getMinutes() + toleranciaMinutos);
+    } else {
+        // Para salida: puede marcar desde tolerancia antes hasta 1 hora después
+        tiempoMinimo.setMinutes(tiempoMinimo.getMinutes() - toleranciaMinutos);
+        tiempoMaximo.setHours(tiempoMaximo.getHours() + 1);
+    }
+
+    // Validar que esté dentro de la ventana
+    if (ahora < tiempoMinimo) {
+        const horasRestantes = Math.floor((tiempoMinimo.getTime() - ahora.getTime()) / (1000 * 60 * 60));
+        const minutosRestantes = Math.floor(((tiempoMinimo.getTime() - ahora.getTime()) % (1000 * 60 * 60)) / (1000 * 60));
+        throw new Error(
+            `Aún no puedes marcar ${dto.tipo_marcado}. El turno ${dto.tipo_marcado === 'llegada' ? 'inicia' : 'termina'} a las ${horaEsperada}. ` +
+            `Puedes marcar desde las ${tiempoMinimo.getHours().toString().padStart(2, '0')}:${tiempoMinimo.getMinutes().toString().padStart(2, '0')}. ` +
+            `Faltan ${horasRestantes}h ${minutosRestantes}min`
+        );
+    }
+
+    if (ahora > tiempoMaximo) {
+        throw new Error(
+            `Ya no puedes marcar ${dto.tipo_marcado}. El turno ${dto.tipo_marcado === 'llegada' ? 'inició' : 'terminó'} a las ${horaEsperada}. ` +
+            `La ventana para marcar cerró a las ${tiempoMaximo.getHours().toString().padStart(2, '0')}:${tiempoMaximo.getMinutes().toString().padStart(2, '0')}`
+        );
+    }
+
+    // 5. Determinar estado de asistencia
     const { estado, minutosDiferencia } = await determinarEstadoAsistencia(
         new Date(),
         horaEsperada,
         dto.tipo_marcado
     );
 
-    // 5. Calcular orden de llegada (solo para Mormones y llegada)
+    // 6. Calcular orden de llegada (solo para Mormones y llegada)
     let ordenLlegada = null;
     if (
-        programacion.paradero.nombre === 'Mormones' &&
+        programacionActual.paradero.nombre === 'Mormones' &&
         dto.tipo_marcado === 'llegada'
     ) {
-        ordenLlegada = await calcularOrdenLlegada(hoy, programacion.paradero.idParadero);
+        ordenLlegada = await calcularOrdenLlegada(hoy, programacionActual.paradero.idParadero);
     }
 
-    // 6. Guardar asistencia
+    // 7. Guardar asistencia
     const asistencia = asistenciaRepo.create({
         idAsistencia: uuidv4(),
-        idProgramacion: programacion.idProgramacion,
-        idUsuario: programacion.moto.usuario.idUsuario,
-        idMoto: programacion.moto.idMoto,
-        idParadero: programacion.paradero.idParadero,
-        idTurno: programacion.turno.idTurno,
+        idProgramacion: programacionActual.idProgramacion,
+        idUsuario: programacionActual.moto.usuario.idUsuario,
+        idMoto: programacionActual.moto.idMoto,
+        idParadero: programacionActual.paradero.idParadero,
+        idTurno: programacionActual.turno.idTurno,
         fecha: hoy,
         tipoMarcado: dto.tipo_marcado,
         horaMarcado: new Date(),
