@@ -303,6 +303,66 @@ INSERT INTO configuracion_turnos (id_configuracion, id_turno, usa_alternancia_pa
 (UUID(), '051b43df-9e84-41a4-8917-c633815c615a', FALSE, 'orden_llegada', 20),
 (UUID(), 'b0c90c58-d26f-4064-bb05-37837f5d65f8', FALSE, 'orden_llegada', 21);
 
+CREATE TABLE configuracion_asistencia (
+  id_configuracion VARCHAR(36) PRIMARY KEY,
+  tipo_marcado ENUM('llegada', 'salida') NOT NULL UNIQUE,
+  tolerancia_minutos INT NOT NULL DEFAULT 15,
+  descripcion VARCHAR(255),
+  estado_auditoria CHAR(1) NOT NULL DEFAULT '1',
+  fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  fecha_modificacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Datos iniciales
+INSERT INTO configuracion_asistencia (id_configuracion, tipo_marcado, tolerancia_minutos, descripcion) VALUES
+(UUID(), 'llegada', 15, 'Tolerancia para marcado de llegada'),
+(UUID(), 'salida', 30, 'Tolerancia para marcado de salida');
+
+CREATE TABLE asistencias (
+  id_asistencia VARCHAR(36) PRIMARY KEY,
+  id_programacion VARCHAR(36) NOT NULL,
+  id_usuario VARCHAR(36) NOT NULL,
+  id_moto VARCHAR(36) NOT NULL,
+  id_paradero VARCHAR(36) NOT NULL,
+  id_turno VARCHAR(36) NOT NULL,
+  fecha DATE NOT NULL,
+  -- Marcado
+  tipo_marcado ENUM('llegada', 'salida') NOT NULL,
+  hora_marcado DATETIME NOT NULL,
+  hora_esperada TIME NOT NULL,
+  -- Geolocalización
+  latitud_marcado DECIMAL(10, 8) NOT NULL,
+  longitud_marcado DECIMAL(11, 8) NOT NULL,
+  distancia_metros DECIMAL(8, 2),
+  dentro_radio BOOLEAN DEFAULT FALSE,
+  -- Estado
+  estado_asistencia ENUM('asistio', 'tardanza', 'falta') NOT NULL,
+  minutos_diferencia INT DEFAULT 0,
+  -- Orden de llegada (para Comité 24)
+  orden_llegada INT,
+  -- Observaciones
+  observaciones TEXT,
+  ip_marcado VARCHAR(45),
+  dispositivo VARCHAR(255),
+  -- Auditoría
+  estado_auditoria CHAR(1) NOT NULL DEFAULT '1',
+  fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  fecha_modificacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  
+  FOREIGN KEY (id_programacion) REFERENCES programacion(id_programacion) ON DELETE CASCADE,
+  FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario),
+  FOREIGN KEY (id_moto) REFERENCES motos(id_moto),
+  FOREIGN KEY (id_paradero) REFERENCES paraderos(id_paradero),
+  FOREIGN KEY (id_turno) REFERENCES turnos(id_turno),
+  
+  INDEX idx_fecha (fecha),
+  INDEX idx_usuario_fecha (id_usuario, fecha),
+  INDEX idx_paradero_fecha_tipo (id_paradero, fecha, tipo_marcado),
+  INDEX idx_orden_llegada (fecha, orden_llegada),
+  INDEX idx_estado (fecha, estado_asistencia),
+  UNIQUE KEY unique_marcado (id_programacion, tipo_marcado)
+);
+
     
 -- ----------------------------------------------------------------------------------------------------------
 
@@ -326,6 +386,30 @@ AND m.id_moto NOT IN (
     AND CURDATE() BETWEEN sp.fecha_inicio AND sp.fecha_fin
 )
 ORDER BY m.numero_moto;
+
+-- Vista: Reporte de asistencias
+
+CREATE OR REPLACE VIEW v_reporte_asistencias AS
+SELECT 
+    a.fecha,
+    p.nombre AS paradero,
+    t.nombre AS turno,
+    CONCAT(u.nombre, ' ', u.apellido_paterno) AS conductor,
+    m.numero_moto,
+    a.tipo_marcado,
+    a.hora_esperada,
+    a.hora_marcado,
+    a.estado_asistencia,
+    a.minutos_diferencia,
+    a.distancia_metros,
+    a.dentro_radio,
+    a.orden_llegada
+FROM asistencias a
+INNER JOIN usuarios u ON a.id_usuario = u.id_usuario
+INNER JOIN motos m ON a.id_moto = m.id_moto
+INNER JOIN paraderos p ON a.id_paradero = p.id_paradero
+INNER JOIN turnos t ON a.id_turno = t.id_turno;
+
 
 -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

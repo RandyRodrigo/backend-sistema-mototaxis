@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { generarProgramacionDiaSiguiente, obtenerProgramacionMañana, obtenerProgramacionVisualPorFecha, obtenerProgramacionPorFecha, registrarOrdenLlegada, eliminarProgramacionPorFecha } from '../controllers/programacion-automatica.controller';
+import { generarComite24, eliminarComite24 } from '../controllers/programacion-comite24.controller';
 import { verificarToken } from '../middlewares/auth.middleware';
 
 const router = Router();
@@ -37,6 +38,19 @@ router.get('/:fecha', verificarToken, obtenerProgramacionPorFecha);
  * Registra el orden de llegada en Mormones para Comité 24
  */
 router.post('/orden-llegada', verificarToken, registrarOrdenLlegada);
+
+/**
+ * POST /api/programacion-automatica/generar-comite24
+ * Genera programación de Comité 24 basada en orden de llegada
+ * Se ejecuta automáticamente a las 8:30 AM o manualmente
+ */
+router.post('/generar-comite24', verificarToken, generarComite24);
+
+/**
+ * DELETE /api/programacion-automatica/comite24/:fecha
+ * Elimina la programación de Comité 24 de una fecha específica
+ */
+router.delete('/comite24/:fecha', verificarToken, eliminarComite24);
 
 /**
  * DELETE /api/programacion-automatica/:fecha

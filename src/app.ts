@@ -6,13 +6,15 @@ import usuarioRouter from './routes/usuario.route';
 import reseteoClaveRouter from './routes/reseteo-clave.route';
 import motoRouter from './routes/moto.route';
 import paraderoRouter from './routes/paradero.route';
-import asistenciaRouter from './routes/asistencia.route';
+import asistenciaRouter from './routes/asistencia.routes';
 import turnoRouter from './routes/turno.route';
 import programacionRouter from './routes/programacion.route';
 import programacionAutomaticaRouter from './routes/programacion-automatica.routes';
 import cors from 'cors';
 import { FRONTEND_URL } from './shared/constants';
 import { iniciarCronProgramacionAutomatica } from './config/cron.config';
+import { iniciarCronAsistencia } from './config/cron-asistencia.config';
+import { iniciarCronComite24 } from './config/cron-comite24.config';
 
 const app: Application = express();
 
@@ -39,8 +41,10 @@ export const startServer = async () => {
         await AppDataSource.initialize();
         console.log('La base de datos se ha conectado correctamente');
 
-        // Iniciar cron job de programación automática
+        // Iniciar cron jobs
         iniciarCronProgramacionAutomatica();
+        iniciarCronAsistencia();
+        iniciarCronComite24();
     } catch (error) {
         console.error('Error al conectar a la base de datos:', error);
     }

@@ -108,12 +108,18 @@ export const generarProgramacionDiaria = async (fecha: string): Promise<Programa
     }
 
     // 10. PASO 4: Asignar Curva Noche (ESPECIAL: primeros/últimos 7 de Mormones)
+    // IMPORTANTE: Curva Noche se programa para el MISMO DÍA, no para el día siguiente
     const configCurvaNoche = configuraciones.find(c => c.turno.nombre === 'Curva Turno Noche');
     const programacionMormones = programaciones.filter(p => p.turno.nombre === 'Turno Único Mormones');
     if (configCurvaNoche && programacionMormones.length > 0 && turnoAplicaParaDia(configCurvaNoche.turno, fecha)) {
+        // Calcular la fecha de HOY (un día antes de la fecha programada)
+        const fechaObj = new Date(fecha + 'T00:00:00');
+        fechaObj.setDate(fechaObj.getDate() - 1);
+        const fechaHoy = fechaObj.toISOString().split('T')[0];
+
         const asignaciones = await asignarCurvaNoche(
             configCurvaNoche.turno,
-            fecha,
+            fechaHoy,  // Usar fecha de HOY en lugar de mañana
             tipoDia,
             programacionMormones,
             posicionCurvaNoche
@@ -588,70 +594,73 @@ const asignarComite42 = async (
 
 /**
  * Asigna Comité 24 por orden de llegada (marcado de asistencia en Mormones)
+ * Usa las asistencias registradas en Mormones para determinar el orden
  */
 const asignarPorOrdenLlegada = async (
     fecha: string,
     turnosComite24: Turno[]
 ): Promise<Programacion[]> => {
-    const ordenesLlegada = await ordenLlegadaRepo.find({
-        where: {
-            fecha,
-            estadoAuditoria: EstadoAuditoriaEnum.ACTIVO.toString()
-        },
-        order: {
-            orden: 'ASC'
-        }
-    });
+    // Importar el repositorio de asistencias
+    const { AppDataSource } = await import('../config/appdatasource');
+    const { Asistencia } = await import('../entities/asistencia');
+    const asistenciaRepo = AppDataSource.getRepository(Asistencia);
 
-    if (ordenesLlegada.length === 0) {
-        console.warn(`No hay registros de orden de llegada para la fecha ${fecha}`);
+    // Obtener asistencias de Mormones ordenadas por orden de llegada
+    const asistenciasMormones = await asistenciaRepo
+        .createQueryBuilder('a')
+        .innerJoinAndSelect('a.moto', 'moto')
+        .innerJoinAndSelect('a.paradero', 'paradero')
+        .where('a.fecha = :fecha', { fecha })
+        .andWhere('paradero.nombre = :nombre', { nombre: 'Mormones' })
+        .andWhere('a.tipo_marcado = :tipo', { tipo: 'llegada' })
+        .andWhere('a.estado_asistencia IN (:...estados)', {
+            estados: ['asistio', 'tardanza']
+        })
+        .orderBy('a.orden_llegada', 'ASC')
+        .getMany();
+
+    if (asistenciasMormones.length === 0) {
+        console.warn(`No hay asistencias en Mormones para asignar Comité 24 en fecha ${fecha}`);
         return [];
     }
 
+    console.log(`📋 Asignando Comité 24 con ${asistenciasMormones.length} asistencias de Mormones`);
+
     const programaciones: Programacion[] = [];
-    let indiceOrden = 0;
+    let indiceAsistencia = 0;
 
     for (const turno of turnosComite24) {
-        const cantidadRequerida = turno.cantidadMotos;
-        const paradero = await paraderoRepo.findOne({ where: { idParadero: turno.idParadero } });
+        const paradero = await paraderoRepo.findOne({
+            where: { idParadero: turno.idParadero }
+        });
 
         if (!paradero) {
             console.warn(`Paradero no encontrado para turno ${turno.nombre}`);
             continue;
         }
 
-        for (let i = 0; i < cantidadRequerida && indiceOrden < ordenesLlegada.length; i++) {
-            const ordenLlegada = ordenesLlegada[indiceOrden];
-            const moto = await motoRepo.findOne({
-                where: {
-                    numeroMoto: ordenLlegada.numeroMoto,
-                    estadoAuditoria: EstadoAuditoriaEnum.ACTIVO
-                }
+        for (let i = 0; i < turno.cantidadMotos && indiceAsistencia < asistenciasMormones.length; i++) {
+            const asistencia = asistenciasMormones[indiceAsistencia];
+
+            const programacion = programacionRepo.create({
+                idProgramacion: generarUUID(),
+                moto: asistencia.moto,
+                paradero: paradero,
+                turno: turno,
+                fecha: fecha,
+                ordenAsignacion: i + 1,
+                esCompensacion: false,
+                generadoAutomaticamente: false, // Asignado por orden de llegada
+                estadoAuditoria: EstadoAuditoriaEnum.ACTIVO
             });
 
-            if (moto) {
-                const programacion = programacionRepo.create({
-                    idProgramacion: generarUUID(),
-                    moto: moto,
-                    paradero: paradero,
-                    turno: turno,
-                    fecha: fecha,
-                    ordenAsignacion: i + 1,
-                    esCompensacion: false,
-                    tipoDia: null,
-                    generadoAutomaticamente: true,
-                    estadoAuditoria: EstadoAuditoriaEnum.ACTIVO
-                });
-
-                programaciones.push(programacion);
-                ordenLlegada.turnoAsignado = turno;
-                await ordenLlegadaRepo.save(ordenLlegada);
-            }
-
-            indiceOrden++;
+            programaciones.push(programacion);
+            indiceAsistencia++;
         }
     }
 
+
+    console.log(`✅ Asignadas ${programaciones.length} motos a Comité 24 por orden de llegada`);
     return programaciones;
 };
 
