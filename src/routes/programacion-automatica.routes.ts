@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { generarProgramacionDiaSiguiente, obtenerProgramacionMañana, obtenerProgramacionVisualPorFecha, obtenerProgramacionPorFecha, registrarOrdenLlegada, eliminarProgramacionPorFecha } from '../controllers/programacion-automatica.controller';
+import { generarProgramacionDiaSiguiente, obtenerProgramacionMañana, obtenerProgramacionVisualPorFecha, obtenerProgramacionPorFecha, registrarOrdenLlegada, eliminarProgramacionPorFecha, obtenerMiProgramacionPorFecha } from '../controllers/programacion-automatica.controller';
 import { generarComite24, eliminarComite24 } from '../controllers/programacion-comite24.controller';
 import { verificarToken } from '../middlewares/auth.middleware';
 
@@ -20,6 +20,14 @@ router.post('/generar', verificarToken, generarProgramacionDiaSiguiente);
 router.get('/mañana', verificarToken, obtenerProgramacionMañana);
 
 /**
+ * GET /api/programacion-automatica/mi-programacion/:fecha
+ * Obtiene la programación personal del usuario autenticado para una fecha
+ * NUEVO: Filtrado por numeroMoto del usuario
+ * IMPORTANTE: Esta ruta debe estar ANTES de /visual/:fecha y /:fecha para evitar conflictos
+ */
+router.get('/mi-programacion/:fecha', verificarToken, obtenerMiProgramacionPorFecha);
+
+/**
  * GET /api/programacion-automatica/visual/:fecha
  * Obtiene la programación en formato visual agrupado por paradero y turno
  * NUEVO: Optimizado para visualización en frontend
@@ -31,6 +39,7 @@ router.get('/visual/:fecha', verificarToken, obtenerProgramacionVisualPorFecha);
  * GET /api/programacion-automatica/:fecha
  * Obtiene la programación de una fecha específica
  */
+
 router.get('/:fecha', verificarToken, obtenerProgramacionPorFecha);
 
 /**

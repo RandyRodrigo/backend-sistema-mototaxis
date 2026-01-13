@@ -160,3 +160,62 @@ export const obtenerProgramacionVisualPorFecha = async (req: Request, res: Respo
         res.status(500).json(BaseResponse.error(error.message));
     }
 };
+
+/**
+ * Obtiene la programación personal del usuario autenticado filtrada por su numeroMoto
+ * NUEVO: Solo retorna paraderos y turnos donde está asignado el usuario
+ */
+export const obtenerMiProgramacionPorFecha = async (req: Request, res: Response) => {
+    try {
+        const { fecha } = req.params;
+        const userId = req.user?.idUsuario;
+
+        if (!fecha) {
+            res.status(400).json(BaseResponse.error('La fecha es requerida', 400));
+            return;
+        }
+
+        if (!userId) {
+            res.status(401).json(BaseResponse.error('Usuario no autenticado', 401));
+            return;
+        }
+
+        // Obtener el usuario con su moto
+        const { AppDataSource } = await import('../config/appdatasource');
+        const { Usuario } = await import('../entities/usuario');
+        const usuarioRepo = AppDataSource.getRepository(Usuario);
+
+        const usuario = await usuarioRepo.findOne({
+            where: { idUsuario: userId },
+            relations: ['moto']
+        });
+
+        if (!usuario) {
+            res.status(404).json(BaseResponse.error('Usuario no encontrado', 404));
+            return;
+        }
+
+        if (!usuario.moto) {
+            res.status(404).json(BaseResponse.error('El usuario no tiene una moto asignada', 404));
+            return;
+        }
+
+        const numeroMoto = usuario.moto.numeroMoto;
+
+        // Obtener la programación filtrada por el numeroMoto del usuario
+        const programacionPersonal = await programacionAutomaticaService.obtenerMiProgramacionVisual(fecha, numeroMoto);
+
+        if (programacionPersonal.paraderos.length === 0) {
+            res.status(404).json(BaseResponse.error(`No se encontró programación para tu moto (${numeroMoto}) en la fecha ${fecha}`, 404));
+            return;
+        }
+
+        res.status(200).json(BaseResponse.success(
+            programacionPersonal,
+            'Programación personal obtenida exitosamente'
+        ));
+    } catch (error) {
+        console.error('Error al obtener programación personal:', error);
+        res.status(500).json(BaseResponse.error(error.message));
+    }
+};

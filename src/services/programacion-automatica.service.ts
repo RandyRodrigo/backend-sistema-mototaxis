@@ -809,6 +809,37 @@ export const obtenerProgramacionVisual = async (fecha: string) => {
 };
 
 /**
+ * Obtiene la programación personal en formato visual filtrado por numeroMoto del usuario
+ * Solo retorna paraderos y turnos donde el numeroMoto del usuario está incluido
+ */
+export const obtenerMiProgramacionVisual = async (fecha: string, numeroMoto: number) => {
+    // Obtener la programación visual completa
+    const programacionCompleta = await obtenerProgramacionVisual(fecha);
+
+    if (programacionCompleta.paraderos.length === 0) {
+        return {
+            fecha,
+            totalAsignaciones: 0,
+            paraderos: []
+        };
+    }
+
+    // Filtrar solo los paraderos y turnos donde el numeroMoto está incluido
+    const paraderosFiltrados = programacionCompleta.paraderos
+        .map(paradero => ({
+            ...paradero,
+            turnos: paradero.turnos.filter(turno => turno.numeros.includes(numeroMoto))
+        }))
+        .filter(paradero => paradero.turnos.length > 0); // Solo incluir paraderos con turnos
+
+    return {
+        fecha,
+        totalAsignaciones: paraderosFiltrados.reduce((sum, p) => sum + p.turnos.length, 0),
+        paraderos: paraderosFiltrados
+    };
+};
+
+/**
  * Utilidad: Resta un día a una fecha
  */
 const restarUnDia = (fecha: string): string => {
