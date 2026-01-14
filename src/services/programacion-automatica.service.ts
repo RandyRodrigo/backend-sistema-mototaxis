@@ -778,27 +778,34 @@ export const obtenerProgramacionVisual = async (fecha: string) => {
         paraderoData.turnos.get(turnoKey)!.numeros.push(prog.moto.numeroMoto);
     }
 
-    // Convertir Maps a Arrays
-    const paraderos = Array.from(paraderoMap.values()).map(paradero => ({
-        nombre: paradero.nombre,
-        direccion: paradero.direccion,
-        turnos: Array.from(paradero.turnos.values()).map((turno: TurnoData) => ({
-            nombre: turno.nombre,
-            horario: `${turno.horaInicio.substring(0, 5)} - ${turno.horaFin.substring(0, 5)}`,
-            horaInicio: turno.horaInicio,
-            horaFin: turno.horaFin,
-            tipoDia: turno.tipoDia,
-            numeros: turno.numeros,
-            totalMotos: turno.numeros.length
-        }))
-    }));
+    // Convertir Maps a Arrays y ordenar turnos por horaInicio
+    const paraderos = Array.from(paraderoMap.values()).map(paradero => {
+        const turnosOrdenados = Array.from(paradero.turnos.values()).sort(
+            (a: TurnoData, b: TurnoData) => a.horaInicio.localeCompare(b.horaInicio)
+        );
 
-    // Ordenar paraderos según el orden deseado
-    const ordenParaderos = ['Mormones', 'Lomas', 'Curva', 'Comité 42', 'Comité 24'];
+        return {
+            nombre: paradero.nombre,
+            direccion: paradero.direccion,
+            turnos: turnosOrdenados.map((turno: TurnoData) => ({
+                nombre: turno.nombre,
+                horario: `${turno.horaInicio.substring(0, 5)} - ${turno.horaFin.substring(0, 5)}`,
+                horaInicio: turno.horaInicio,
+                horaFin: turno.horaFin,
+                tipoDia: turno.tipoDia,
+                numeros: turno.numeros,
+                totalMotos: turno.numeros.length
+            }))
+        };
+    });
+
+    // Ordenar paraderos según la hora de inicio de su primer turno (el más temprano)
     paraderos.sort((a, b) => {
-        const indexA = ordenParaderos.indexOf(a.nombre);
-        const indexB = ordenParaderos.indexOf(b.nombre);
-        return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB);
+        // Como ya ordenamos los turnos internamente, el primer turno es el más temprano
+        const horaInicioA = a.turnos.length > 0 ? a.turnos[0].horaInicio : '23:59:59';
+        const horaInicioB = b.turnos.length > 0 ? b.turnos[0].horaInicio : '23:59:59';
+        
+        return horaInicioA.localeCompare(horaInicioB);
     });
 
     return {
@@ -847,4 +854,3 @@ const restarUnDia = (fecha: string): string => {
     date.setDate(date.getDate() - 1);
     return date.toISOString().split('T')[0];
 };
-
