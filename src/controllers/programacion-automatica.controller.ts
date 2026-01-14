@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import BaseResponse from "../shared/base.response";
 import * as programacionAutomaticaService from "../services/programacion-automatica.service";
+import { obtenerFechaHoyPeru, obtenerFechaMananaPeru } from "../shared/date-utils";
 
 /**
  * Genera automáticamente la programación para el día siguiente
@@ -15,10 +16,8 @@ export const generarProgramacionDiaSiguiente = async (req: Request, res: Respons
         if (req.body && req.body.fecha) {
             fechaObjetivo = req.body.fecha;
         } else {
-            // Calcular fecha del día siguiente
-            const mañana = new Date();
-            mañana.setDate(mañana.getDate() + 1);
-            fechaObjetivo = mañana.toISOString().split('T')[0];
+            // Calcular fecha del día siguiente en zona horaria de Perú
+            fechaObjetivo = obtenerFechaMananaPeru();
         }
 
         const programacion = await programacionAutomaticaService.generarProgramacionDiaria(fechaObjetivo);
@@ -64,9 +63,8 @@ export const obtenerProgramacionPorFecha = async (req: Request, res: Response) =
  */
 export const obtenerProgramacionMañana = async (req: Request, res: Response) => {
     try {
-        const mañana = new Date();
-        mañana.setDate(mañana.getDate() + 1);
-        const fechaMañana = mañana.toISOString().split('T')[0];
+        // Calcular fecha del día siguiente en zona horaria de Perú
+        const fechaMañana = obtenerFechaMananaPeru();
 
         const programacion = await programacionAutomaticaService.obtenerProgramacionPorFecha(fechaMañana);
 
@@ -96,8 +94,8 @@ export const registrarOrdenLlegada = async (req: Request, res: Response) => {
     try {
         const { numeroMoto, horaMarcado } = req.body;
 
-        // Usar la fecha de hoy
-        const hoy = new Date().toISOString().split('T')[0];
+        // Usar la fecha de hoy en zona horaria de Perú
+        const hoy = obtenerFechaHoyPeru();
 
         const ordenLlegada = await programacionAutomaticaService.registrarOrdenLlegada(
             hoy,

@@ -5,10 +5,11 @@ import { Programacion } from '../entities/programacion';
 import { Paradero } from '../entities/paradero';
 import { In } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
+import { obtenerFechaHoyPeru } from '../shared/date-utils';
 
 const asistenciaRepo = AppDataSource.getRepository(Asistencia);
-const configuracionRepo = AppDataSource.getRepository(ConfiguracionAsistencia);
 const programacionRepo = AppDataSource.getRepository(Programacion);
+const configuracionRepo = AppDataSource.getRepository(ConfiguracionAsistencia);
 const paraderoRepo = AppDataSource.getRepository(Paradero);
 
 /**
@@ -149,8 +150,9 @@ export async function marcarAsistencia(
     },
     ipAddress: string
 ): Promise<Asistencia> {
-    // 1. Obtener TODAS las programaciones del usuario para hoy
-    const hoy = new Date().toISOString().split('T')[0];
+    // 1. Obtener TODAS las programaciones del usuario para hoy (zona horaria Perú)
+    const hoy = obtenerFechaHoyPeru();
+
     const programaciones = await programacionRepo.find({
         where: {
             moto: { usuario: { idUsuario } },
@@ -356,7 +358,7 @@ export async function marcarAsistencia(
 export async function obtenerMiProgramacionHoy(
     idUsuario: string
 ): Promise<Programacion[]> {
-    const hoy = new Date().toISOString().split('T')[0];
+    const hoy = obtenerFechaHoyPeru();
 
     return await programacionRepo.find({
         where: {
@@ -404,7 +406,7 @@ export async function obtenerHistorialAsistencias(
 export async function marcarFaltasAutomaticas(): Promise<number> {
     const ahora = new Date();
     const horaActual = `${ahora.getHours().toString().padStart(2, '0')}:00:00`;
-    const hoy = ahora.toISOString().split('T')[0];
+    const hoy = obtenerFechaHoyPeru();
 
     console.log(
         `🚨 [ASISTENCIA] Marcando faltas automáticas - ${hoy} ${horaActual}`

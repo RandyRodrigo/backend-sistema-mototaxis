@@ -1,16 +1,17 @@
 import { Request, Response } from 'express';
 import { generarProgramacionComite24, eliminarProgramacionComite24 } from '../services/programacion-comite24.service';
 import BaseResponse from '../shared/base.response';
+import { obtenerFechaHoyPeru } from '../shared/date-utils';
 
 /**
- * Genera programación de Comité 24 para una fecha específica
- * POST /api/v1/programacion-automatica/generar-comite24
+ * Genera la programación de Comité 24 para una fecha específica
  */
 export const generarComite24 = async (req: Request, res: Response): Promise<void> => {
     try {
-        // Obtener fecha del body o usar hoy
         const { fecha } = req.body;
-        const fechaGeneracion = fecha || obtenerFechaHoy();
+
+        // Si no se proporciona fecha, usar hoy
+        const fechaGeneracion = fecha || obtenerFechaHoyPeru();
 
         // Validar formato de fecha
         if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaGeneracion)) {
@@ -82,14 +83,4 @@ export const eliminarComite24 = async (req: Request, res: Response): Promise<voi
             BaseResponse.error(error.message || 'Error al eliminar Comité 24', 400)
         );
     }
-};
-
-/**
- * Obtiene la fecha actual en formato YYYY-MM-DD (zona horaria de Perú)
- */
-const obtenerFechaHoy = (): string => {
-    const ahora = new Date();
-    const peruOffset = -5 * 60; // UTC-5
-    const peruTime = new Date(ahora.getTime() + peruOffset * 60 * 1000);
-    return peruTime.toISOString().split('T')[0];
 };

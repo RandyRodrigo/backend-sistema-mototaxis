@@ -1,5 +1,6 @@
 import cron from 'node-cron';
 import * as programacionAutomaticaService from '../services/programacion-automatica.service';
+import { obtenerFechaHoyPeru, obtenerFechaMananaPeru } from '../shared/date-utils';
 
 /**
  * Cron job que se ejecuta todos los días a las 6:00 PM
@@ -11,20 +12,8 @@ export const iniciarCronProgramacionAutomatica = () => {
         try {
             console.log('🕐 [CRON] Iniciando generación automática de programación...');
 
-            // Calcular fecha del día siguiente EN ZONA HORARIA DE PERÚ
-            // Obtener la fecha actual en Perú
-            const formatter = new Intl.DateTimeFormat('en-CA', {
-                timeZone: 'America/Lima',
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit'
-            });
-            const fechaHoyPeru = formatter.format(new Date()); // Formato: YYYY-MM-DD
-
-            // Sumar 1 día
-            const [year, month, day] = fechaHoyPeru.split('-').map(Number);
-            const mañana = new Date(year, month - 1, day + 1);
-            const fechaMañana = mañana.toISOString().split('T')[0];
+            // Obtener fecha de mañana en zona horaria de Perú
+            const fechaMañana = obtenerFechaMananaPeru();
 
             // Generar programación
             const programacion = await programacionAutomaticaService.generarProgramacionDiaria(fechaMañana);
@@ -49,19 +38,9 @@ export const iniciarCronProgramacionAutomatica = () => {
             console.log('\n🧪 ========================================');
             console.log(`🧪 [CRON TEST] Ejecutado a las: ${horaActual}`);
 
-            // Calcular fecha del día siguiente EN ZONA HORARIA DE PERÚ
-            const formatter = new Intl.DateTimeFormat('en-CA', {
-                timeZone: 'America/Lima',
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit'
-            });
-            const fechaHoyPeru = formatter.format(new Date()); // Formato: YYYY-MM-DD
-
-            // Sumar 1 día
-            const [year, month, day] = fechaHoyPeru.split('-').map(Number);
-            const mañana = new Date(year, month - 1, day + 1);
-            const fechaMañana = mañana.toISOString().split('T')[0];
+            // Obtener fechas usando utilidades centralizadas
+            const fechaHoyPeru = obtenerFechaHoyPeru();
+            const fechaMañana = obtenerFechaMananaPeru();
 
             console.log(`🧪 [CRON TEST] Fecha hoy en Perú: ${fechaHoyPeru}`);
             console.log(`🧪 [CRON TEST] Generando programación para: ${fechaMañana}`);
