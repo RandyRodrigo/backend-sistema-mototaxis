@@ -715,41 +715,17 @@ export const registrarOrdenLlegada = async (
 /**
  * Obtiene la programación en formato visual agrupado por paradero y turno
  * Optimizado para visualización en frontend
- * ESPECIAL: Curva Turno Noche se muestra del MISMO DÍA (un día antes de la fecha solicitada)
  */
 export const obtenerProgramacionVisual = async (fecha: string) => {
-    // 1. Obtener programaciones de la fecha solicitada (EXCLUYENDO Curva Turno Noche)
-    const programaciones = await programacionRepo
-        .createQueryBuilder('prog')
-        .leftJoinAndSelect('prog.moto', 'moto')
-        .leftJoinAndSelect('prog.paradero', 'paradero')
-        .leftJoinAndSelect('prog.turno', 'turno')
-        .where('prog.fecha = :fecha', { fecha })
-        .andWhere('turno.nombre != :curvaNoche', { curvaNoche: 'Curva Turno Noche' })
-        .orderBy('prog.ordenAsignacion', 'ASC')
-        .getMany();
-
-    // 2. Calcular fecha del día anterior para Curva Turno Noche
-    const fechaObj = new Date(fecha + 'T00:00:00');
-    fechaObj.setDate(fechaObj.getDate() - 1);
-    const fechaAnterior = fechaObj.toISOString().split('T')[0];
-
-    // 3. Obtener programaciones de Curva Turno Noche del día anterior
-    const programacionesCurvaNoche = await programacionRepo.find({
-        where: {
-            fecha: fechaAnterior,
-            turno: { nombre: 'Curva Turno Noche' }
-        },
+    const programaciones = await programacionRepo.find({
+        where: { fecha },
         relations: ['moto', 'paradero', 'turno'],
         order: {
             ordenAsignacion: 'ASC'
         }
     });
 
-    // 4. Combinar ambas programaciones
-    const todasProgramaciones = [...programaciones, ...programacionesCurvaNoche];
-
-    if (todasProgramaciones.length === 0) {
+    if (programaciones.length === 0) {
         return {
             fecha,
             totalAsignaciones: 0,
@@ -775,7 +751,7 @@ export const obtenerProgramacionVisual = async (fecha: string) => {
     // Agrupar por paradero
     const paraderoMap = new Map<string, ParaderoData>();
 
-    for (const prog of todasProgramaciones) {
+    for (const prog of programaciones) {
         const paraderoNombre = prog.paradero.nombre;
 
         if (!paraderoMap.has(paraderoNombre)) {
@@ -807,7 +783,6 @@ export const obtenerProgramacionVisual = async (fecha: string) => {
         const turnosOrdenados = Array.from(paradero.turnos.values()).sort(
             (a: TurnoData, b: TurnoData) => a.horaInicio.localeCompare(b.horaInicio)
         );
-
         return {
             nombre: paradero.nombre,
             direccion: paradero.direccion,
@@ -834,7 +809,7 @@ export const obtenerProgramacionVisual = async (fecha: string) => {
 
     return {
         fecha,
-        totalAsignaciones: todasProgramaciones.length,
+        totalAsignaciones: programaciones.length,
         paraderos
     };
 };
