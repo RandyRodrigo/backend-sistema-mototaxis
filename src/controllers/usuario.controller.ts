@@ -147,3 +147,17 @@ export const listarConductores = async (req: Request, res: Response) => {
         res.status(500).json(BaseResponse.error(error.message));
     }
 }
+
+export const perfilUsuario = async (req: Request, res: Response) => {
+    try {
+        const idUsuario = req.user?.idUsuario;
+        const usuario = await usuarioService.obtenerUsuario(idUsuario);
+        if (!usuario) {
+            res.status(400).json(BaseResponse.error(MensajeResponseEnum.NOT_FOUND, 400));
+        }
+        res.status(200).json(BaseResponse.success(usuario, 'Perfil de Usuario'));
+    } catch (error) {
+        console.error(error)
+        res.status(500).json(BaseResponse.error(error.message));
+    }
+}
