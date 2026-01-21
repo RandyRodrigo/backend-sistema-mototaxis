@@ -1,14 +1,22 @@
 import { AppDataSource } from "../config/appdatasource";
 import { Turno } from "../entities/turno";
+import { v4 as uuidv4 } from 'uuid';
 
 const repository = AppDataSource.getRepository(Turno);
 
 export const listarTurnos = async (): Promise<Turno[]> => {
-    return await repository.find();
+    return await repository.find(
+        {
+            relations: ['paradero']
+        }
+    );
 };
 
 export const insertarTurno = async (data: Partial<Turno>): Promise<Turno> => {
-    const nuevoTurno = repository.create(data);
+  const nuevoTurno = repository.create({
+    idTurno: uuidv4(),
+    ...data
+  });
     return await repository.save(nuevoTurno);
 };
 
