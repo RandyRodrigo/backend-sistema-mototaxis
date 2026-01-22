@@ -204,7 +204,10 @@ export const obtenerMiProgramacionPorFecha = async (req: Request, res: Response)
         const programacionPersonal = await programacionAutomaticaService.obtenerMiProgramacionVisual(fecha, numeroMoto);
 
         if (programacionPersonal.paraderos.length === 0) {
-            res.status(404).json(BaseResponse.error(`No se encontró programación para tu moto (${numeroMoto}) en la fecha ${fecha}`, 404));
+            res.status(200).json(BaseResponse.success(
+                programacionPersonal,
+                `No se encontró programación para tu moto (${numeroMoto}) en la fecha ${fecha}`
+            ));
             return;
         }
 
