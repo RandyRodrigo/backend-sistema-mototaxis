@@ -3,6 +3,8 @@ import { Programacion } from "../entities/programacion";
 import { Moto } from "../entities/moto";
 import { Paradero } from "../entities/paradero";
 import { Turno } from "../entities/turno";
+import { v4 as uuidv4 } from 'uuid';
+
 
 const repository = AppDataSource.getRepository(Programacion);
 const motoRepository = AppDataSource.getRepository(Moto);
@@ -26,6 +28,7 @@ export const insertarProgramacion = async (data: { idMoto: string, idParadero: s
     if (!turno) throw new Error('Turno no encontrado');
 
     const nuevaProgramacion = repository.create({
+        idProgramacion: uuidv4(),
         moto,
         paradero,
         turno,

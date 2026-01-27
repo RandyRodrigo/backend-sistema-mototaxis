@@ -1,7 +1,7 @@
 import Joi from "joi";
 
 export const insertarProgramacionSchema = Joi.object({
-    idMoto: Joi.string().guid({ version: 'uuidv4' }).required(),
+    idMoto: Joi.string().required(),
     idParadero: Joi.string().required(),
     idTurno: Joi.string().required(),
     fecha: Joi.date().iso().required()
