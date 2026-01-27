@@ -15,6 +15,7 @@ export const listarTurnos = async (): Promise<Turno[]> => {
 export const insertarTurno = async (data: Partial<Turno>): Promise<Turno> => {
   const nuevoTurno = repository.create({
     idTurno: uuidv4(),
+    cantidadMotos: 0,
     ...data
   });
     return await repository.save(nuevoTurno);
