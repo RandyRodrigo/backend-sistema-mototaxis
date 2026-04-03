@@ -1,6 +1,6 @@
 import app, { startMailServer, startServer } from './app';
 
-const PORT = 3000;
+const PORT = 10000;
 
 const main = async () => {
     await startServer();
