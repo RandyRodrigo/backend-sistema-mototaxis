@@ -19,6 +19,8 @@ import { iniciarCronComite24 } from './config/cron-comite24.config';
 const app: Application = express();
 
 app.use(express.json());
+// Configurar CORS
+console.log("Allowed Origin:", FRONTEND_URL);
 app.use(cors({
     origin: FRONTEND_URL,
 }));
