@@ -21,8 +21,9 @@ const app: Application = express();
 app.use(express.json());
 // Configurar CORS
 console.log("Allowed Origin:", FRONTEND_URL);
+//TEMP: TESTING HERE
 app.use(cors({
-    origin: FRONTEND_URL,
+    origin: '*',
 }));
 
 app.use('/api/v1/usuario', usuarioRouter);
