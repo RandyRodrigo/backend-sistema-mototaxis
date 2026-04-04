@@ -21,7 +21,7 @@ export const HTML_TEMPLATE_RESET_PASSWORD = `
             <tr>
               <td style="background:#6CB12E; padding:24px;" align="left">
                 <div style="display:flex; align-items:center; gap:10px;">
-                  <a><img src="https://i.ibb.co/whGx2d8S/Logo1.png" alt="Sistema Mototaxis Logo" width="80" height="80" style="border-radius:50%; display:block;"></a>
+                  <a><img src="https://sistema-asistencia-motos-14s5.vercel.app/Logo.png" alt="Sistema Mototaxis Logo" width="80" height="80" style="border-radius:50%; display:block;"></a>
                   <div style="font-family:Arial, Helvetica, sans-serif; font-size:20px; color:#ffffff; font-weight:bold;">
                     Sistema Mototaxis
                   </div>
