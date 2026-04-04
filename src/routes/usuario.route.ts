@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { perfilUsuario,insertarUsuario, loginUsuario, listarUsuarios, actualizarUsuario, listarAdmins, listarConductores, modificarUsuario } from "../controllers/usuario.controller";
+import { perfilUsuario,insertarUsuario, loginUsuario, listarUsuarios, actualizarUsuario, listarAdmins, listarConductores, modificarUsuario, eliminarUsuario } from "../controllers/usuario.controller";
 import { verificarToken } from "../middlewares/auth.middleware";
 
 const router = Router();
@@ -12,5 +12,6 @@ router.get("/conductores", listarConductores);
 router.patch("/actualizar", verificarToken, actualizarUsuario);
 router.patch("/modificar", verificarToken, modificarUsuario);
 router.get("/perfil", verificarToken, perfilUsuario);
+router.delete("/eliminar", verificarToken, eliminarUsuario);
 
 export default router;

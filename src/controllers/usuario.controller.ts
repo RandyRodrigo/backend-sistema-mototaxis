@@ -4,6 +4,7 @@ import BaseResponse from "../shared/base.response";
 import { compararClave, generarToken } from "../shared/util";
 import { insertarUsuarioSchema, loginUsuarioSchema, actualizarUsuarioSchema, modificarUsuarioSchema } from "../validators/usuario.schema";
 import { MensajeResponseEnum } from "../enums/mensaje.enums";
+import { obtenerMotoPorIdUsuario } from "../services/moto.service";
 
 export const insertarUsuario = async (req: Request, res: Response) => {
     try {
@@ -70,6 +71,26 @@ export const modificarUsuario = async (req: Request, res: Response) => {
 
         res.status(200).json(BaseResponse.success(usuarioActualizado, 'Usuario modificado correctamente'));
 
+    } catch (error) {
+        console.error(error);
+        res.status(500).json(BaseResponse.error(error.message));
+    }
+}
+
+export const eliminarUsuario = async (req: Request, res: Response) => {
+    try {
+        console.log("idUsuario a eliminar:", req.body);
+        const { idUsuario } = req.body;
+        
+        // Obtener la moto asignada al usuario
+        const motoAsignada = await obtenerMotoPorIdUsuario(idUsuario);
+        
+        const usuarioEliminado = await usuarioService.eliminarUsuario(idUsuario, motoAsignada);
+        if (!usuarioEliminado) {
+            res.status(404).json(BaseResponse.error("Usuario no encontrado", 404));
+            return;
+        }
+        res.status(200).json(BaseResponse.success(usuarioEliminado, 'Usuario eliminado correctamente'));
     } catch (error) {
         console.error(error);
         res.status(500).json(BaseResponse.error(error.message));

@@ -3,7 +3,12 @@ import { Usuario } from "../entities/usuario";
 import { EstadoAuditoriaEnum } from "../enums/estado-auditoria.enums";
 import { v4 as uuidv4 } from 'uuid';
 import { encriptarClave } from '../shared/util';
+import { Moto } from "../entities/moto";
+import { Asistencia } from "../entities/asistencia";
 const repository = AppDataSource.getRepository(Usuario);
+const repoMoto = AppDataSource.getRepository(Moto);
+const repoAsistencia = AppDataSource.getRepository(Asistencia);
+
 
 export const insertarUsuario = async (data: Partial<Usuario>): Promise<Usuario> => {
     const claveEncriptada = await encriptarClave(data.clave);
@@ -73,6 +78,28 @@ export const obtenerUsuarioPorId = async (idUsuario: string): Promise<Usuario | 
         }
     });
 };
+
+export const eliminarUsuario = async (idUsuario: string, motoAsignada: Moto | null) => {
+    const usuario = await obtenerUsuarioPorId(idUsuario);
+    if (!usuario) {
+        return null;
+    }
+    
+    // Desasignar moto antes de eliminar al usuario
+    if (motoAsignada) {
+        await repoMoto.update(motoAsignada.idMoto, { usuario: null });
+    }
+    
+    // Eliminar asistencias asociadas al usuario
+    await repoAsistencia.delete({
+        usuario: {
+            idUsuario: idUsuario
+        }
+    });
+
+       // Finalmente eliminar usuario
+    return await repository.delete(idUsuario);
+}
 
 export const cambiarClaveUsuario = async (idUsuario: string, clave: string) => {
     await repository.update(idUsuario, { clave });
